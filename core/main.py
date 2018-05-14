@@ -11,6 +11,8 @@ import sys
 import serial
 import serial.tools.list_ports as list_ports
 from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox, QTableWidgetItem
+from PyQt5.QtMultimedia import QCameraInfo, QCamera
+from PyQt5.QtMultimediaWidgets import QCameraViewfinder
 from core.mainwindow import Ui_Form
 
 ser = serial.Serial()
@@ -36,29 +38,36 @@ class MainWindow(QWidget, Ui_Form):
         self.open_port_btn.clicked.connect(self.open_port)
 
     def refresh_camera_list(self):
-        # self.camera_list.clear()
-        # cameras = QCameraInfo.availableCameras()
-        # if len(cameras) == 0:
-        #     QMessageBox.information(self, 'Camera Info', "Haven't any camera device")
-        #     return
-        #
-        # self.camera_list.setRowCount(len(cameras))
-        # for item in cameras:
-        #     self.camera_list.insertRow(len(cameras))
-        #     print(self.camera_list.currentRow())
-        #     cell = QTableWidgetItem('abc')
-        #     self.camera_list.setItem(1, 0, cell)
-        row_count = 10
-        self.camera_list.setRowCount(row_count)
-        for i in range(row_count):
-            id = QTableWidgetItem('id %s' % (i + 1))
-            name = QTableWidgetItem('name %s' % (i + 1))
+        self.camera_list.clearContents()
+        cameras = QCameraInfo.availableCameras()
+        if len(cameras) == 0:
+            QMessageBox.information(self, 'Camera Info', "Can't find any camera device")
+            return
+
+        self.camera_list.setRowCount(len(cameras))
+        for i, item in enumerate(cameras):
+            id = QTableWidgetItem('id %s' % i)
+            name = QTableWidgetItem(item.description())
             self.camera_list.setItem(i, 0, id)
             self.camera_list.setItem(i, 1, name)
 
     def add_camera(self):
         if self.camera_list.rowCount() == 0:
-            pass
+            QMessageBox.information(self, 'Camera Info', "Can't find any camera device")
+            return
+
+        cameras = QCameraInfo.availableCameras()
+        selected_row = self.camera_list.selectedItems().row()
+        print(selected_row)
+        for item in cameras:
+            if self.camera_list.item(selected_row, 1).text() == item.description():
+                camera = QCamera(item)
+                viewfinder = QCameraViewfinder()
+                viewfinder.show()
+
+                camera.setViewfinder(viewfinder)
+                camera.start()
+
 
     def capture_std(self):
         pass
