@@ -1,15 +1,17 @@
-#!/usr/bin/env python
-# encoding: utf-8
+#!/usr/bin/python  
+# -*- coding: UTF-8 -*-
 
 """
 author: Jeffrey
-date: 2018/4/10
+date: 2018/5/14
 """
-import sys, serial
+
+
+import sys
+import serial
 import serial.tools.list_ports as list_ports
 from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox, QTableWidgetItem
-from PyQt5.QtMultimedia import QCamera, QCameraInfo
-from mainwindow import Ui_Form
+from core.mainwindow import Ui_Form
 
 ser = serial.Serial()
 camera_list = []
@@ -34,17 +36,25 @@ class MainWindow(QWidget, Ui_Form):
         self.open_port_btn.clicked.connect(self.open_port)
 
     def refresh_camera_list(self):
-        self.camera_list.clear()
-        camera_list = QCameraInfo.availableCameras()
-        if len(camera_list) == 0:
-            QMessageBox.information(self, 'Camera Info', "Haven't any camera device")
-            return
-
-        for item in camera_list:
-            self.camera_list.insertRow(len(camera_list))
-            print(self.camera_list.currentRow())
-            cell = QTableWidgetItem('abc')
-            self.camera_list.setItem(0, 0, cell)
+        # self.camera_list.clear()
+        # cameras = QCameraInfo.availableCameras()
+        # if len(cameras) == 0:
+        #     QMessageBox.information(self, 'Camera Info', "Haven't any camera device")
+        #     return
+        #
+        # self.camera_list.setRowCount(len(cameras))
+        # for item in cameras:
+        #     self.camera_list.insertRow(len(cameras))
+        #     print(self.camera_list.currentRow())
+        #     cell = QTableWidgetItem('abc')
+        #     self.camera_list.setItem(1, 0, cell)
+        row_count = 10
+        self.camera_list.setRowCount(row_count)
+        for i in range(row_count):
+            id = QTableWidgetItem('id %s' % (i + 1))
+            name = QTableWidgetItem('name %s' % (i + 1))
+            self.camera_list.setItem(i, 0, id)
+            self.camera_list.setItem(i, 1, name)
 
     def add_camera(self):
         if self.camera_list.rowCount() == 0:
@@ -85,9 +95,7 @@ class MainWindow(QWidget, Ui_Form):
                 QMessageBox.information(self, 'Open Fail', e.__str__())
 
 
-
-
-if __name__ == '__main__':
+def run():
     app = QApplication(sys.argv)
     main_window = MainWindow()
     main_window.show()
