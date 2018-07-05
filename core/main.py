@@ -14,6 +14,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox, QTableWidgetItem
 from PyQt5.QtMultimedia import QCameraInfo, QCamera
 from PyQt5.QtMultimediaWidgets import QCameraViewfinder
 from core.mainwindow import Ui_Form
+from core.insert_page import Insert_Page
 
 ser = serial.Serial()
 camera_list = []
@@ -36,6 +37,7 @@ class MainWindow(QWidget, Ui_Form):
         self.capture_std_btn.clicked.connect(self.capture_std)
         self.refresh_port_btn.clicked.connect(self.refresh_port)
         self.open_port_btn.clicked.connect(self.open_port)
+        self.start_supervision_btn.clicked.connect(self.start_supervision)
 
     def refresh_camera_list(self):
         self.camera_list.clearContents()
@@ -46,7 +48,7 @@ class MainWindow(QWidget, Ui_Form):
 
         self.camera_list.setRowCount(len(cameras))
         for i, item in enumerate(cameras):
-            id = QTableWidgetItem('id %s' % i)
+            id = QTableWidgetItem('camera%s' % i)
             name = QTableWidgetItem(item.description())
             self.camera_list.setItem(i, 0, id)
             self.camera_list.setItem(i, 1, name)
@@ -57,8 +59,7 @@ class MainWindow(QWidget, Ui_Form):
             return
 
         cameras = QCameraInfo.availableCameras()
-        selected_row = self.camera_list.selectedItems().row()
-        print(selected_row)
+        selected_row = self.camera_list.currentRow()
         for item in cameras:
             if self.camera_list.item(selected_row, 1).text() == item.description():
                 camera = QCamera(item)
@@ -103,9 +104,18 @@ class MainWindow(QWidget, Ui_Form):
             except serial.SerialException as e:
                 QMessageBox.information(self, 'Open Fail', e.__str__())
 
+    def start_supervision(self):
+        abc = Insert_Page()
+        abc.show()
+        self.camera_tab.addTab(abc, 'hello')
+
 
 def run():
     app = QApplication(sys.argv)
     main_window = MainWindow()
     main_window.show()
     sys.exit(app.exec_())
+
+
+if __name__ == '__main__':
+    run()
