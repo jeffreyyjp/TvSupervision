@@ -14,7 +14,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox, QTableWidgetItem
 from PyQt5.QtMultimedia import QCameraInfo, QCamera
 from PyQt5.QtMultimediaWidgets import QCameraViewfinder
 from core.mainwindow import Ui_Form
-from core.insert_page import Insert_Page
+from core.camera_page import Camera_Page
 
 ser = serial.Serial()
 camera_list = []
@@ -58,16 +58,18 @@ class MainWindow(QWidget, Ui_Form):
             QMessageBox.information(self, 'Camera Info', "Can't find any camera device")
             return
 
-        cameras = QCameraInfo.availableCameras()
+        self.cameras = QCameraInfo.availableCameras()
         selected_row = self.camera_list.currentRow()
-        for item in cameras:
+        for item in self.cameras:
             if self.camera_list.item(selected_row, 1).text() == item.description():
-                camera = QCamera(item)
-                viewfinder = QCameraViewfinder()
-                viewfinder.show()
+                self.camera_page = Camera_Page()
+                self.camera_tab.addTab(self.camera_page, self.camera_list.item(selected_row, 0).text())
 
-                camera.setViewfinder(viewfinder)
-                camera.start()
+                self.camera = QCamera(item)
+                self.viewfinder = QCameraViewfinder()
+                self.camera_page.video_form.addWidget(self.viewfinder)
+                self.camera.setViewfinder(self.viewfinder)
+                self.camera.start()
 
 
     def capture_std(self):
@@ -105,7 +107,7 @@ class MainWindow(QWidget, Ui_Form):
                 QMessageBox.information(self, 'Open Fail', e.__str__())
 
     def start_supervision(self):
-        abc = Insert_Page()
+        abc = Camera_Page()
         abc.show()
         self.camera_tab.addTab(abc, 'hello')
 

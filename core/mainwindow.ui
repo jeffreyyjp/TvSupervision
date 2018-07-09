@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>915</width>
-    <height>616</height>
+    <width>1176</width>
+    <height>689</height>
    </rect>
   </property>
   <property name="font">
@@ -285,8 +285,8 @@
     <rect>
      <x>310</x>
      <y>20</y>
-     <width>581</width>
-     <height>471</height>
+     <width>831</width>
+     <height>531</height>
     </rect>
    </property>
    <property name="title">
@@ -297,8 +297,8 @@
      <rect>
       <x>10</x>
       <y>20</y>
-      <width>561</width>
-      <height>441</height>
+      <width>811</width>
+      <height>501</height>
      </rect>
     </property>
     <property name="currentIndex">
@@ -306,11 +306,11 @@
     </property>
    </widget>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
-     <x>470</x>
-     <y>520</y>
+     <x>540</x>
+     <y>590</y>
      <width>296</width>
      <height>27</height>
     </rect>
@@ -371,6 +371,12 @@
     </item>
    </layout>
   </widget>
+  <zorder>groupBox</zorder>
+  <zorder>groupBox_2</zorder>
+  <zorder>groupBox_3</zorder>
+  <zorder>groupBox_4</zorder>
+  <zorder>layoutWidget</zorder>
+  <zorder>horizontalSpacer_7</zorder>
  </widget>
  <resources/>
  <connections>
