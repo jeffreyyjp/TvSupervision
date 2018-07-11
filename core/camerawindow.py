@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'camera.ui'
+# Form implementation generated from reading ui file 'camerawindow.ui'
 #
 # Created by: PyQt5 UI code generator 5.9.2
 #
@@ -26,9 +26,6 @@ class Ui_Video(object):
         self.label_3.setAlignment(QtCore.Qt.AlignCenter)
         self.label_3.setObjectName("label_3")
         self.gridLayout.addWidget(self.label_3, 0, 2, 1, 1)
-        self.video_form = QtWidgets.QHBoxLayout()
-        self.video_form.setObjectName("video_form")
-        self.gridLayout.addLayout(self.video_form, 1, 0, 1, 1)
         self.label_4 = QtWidgets.QLabel(Video)
         self.label_4.setStyleSheet("QLabel {border: 1px solid blank; }")
         self.label_4.setText("")
@@ -39,6 +36,10 @@ class Ui_Video(object):
         self.label_5.setText("")
         self.label_5.setObjectName("label_5")
         self.gridLayout.addWidget(self.label_5, 1, 2, 1, 1)
+        self.video_widget = QtWidgets.QWidget(Video)
+        self.video_widget.setStyleSheet("QWidget {border: 1px solid blank; }")
+        self.video_widget.setObjectName("video_widget")
+        self.gridLayout.addWidget(self.video_widget, 1, 0, 1, 1)
 
         self.retranslateUi(Video)
         QtCore.QMetaObject.connectSlotsByName(Video)

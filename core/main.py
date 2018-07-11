@@ -58,16 +58,15 @@ class MainWindow(QWidget, Ui_Form):
             QMessageBox.information(self, 'Camera Info', "Can't find any camera device")
             return
 
-        self.cameras = QCameraInfo.availableCameras()
+        cameras = QCameraInfo.availableCameras()
         selected_row = self.camera_list.currentRow()
-        for item in self.cameras:
+        for item in cameras:
             if self.camera_list.item(selected_row, 1).text() == item.description():
-                self.camera_page = Camera_Page()
-                self.camera_tab.addTab(self.camera_page, self.camera_list.item(selected_row, 0).text())
+                camera_page = Camera_Page()
+                self.camera_tab.addTab(camera_page, self.camera_list.item(selected_row, 0).text())
 
                 self.camera = QCamera(item)
-                self.viewfinder = QCameraViewfinder()
-                self.camera_page.video_form.addWidget(self.viewfinder)
+                self.viewfinder = QCameraViewfinder(camera_page.video_widget)
                 self.camera.setViewfinder(self.viewfinder)
                 self.camera.start()
 
