@@ -39,6 +39,12 @@ class MainWindow(QWidget, Ui_Form):
         self.open_port_btn.clicked.connect(self.open_port)
         self.start_supervision_btn.clicked.connect(self.start_supervision)
 
+        self.init_data()
+
+    def init_data(self):
+        self.refresh_camera_list()
+        # TODO
+
     def refresh_camera_list(self):
         self.camera_list.clearContents()
         cameras = QCameraInfo.availableCameras()
@@ -64,12 +70,10 @@ class MainWindow(QWidget, Ui_Form):
             if self.camera_list.item(selected_row, 1).text() == item.description():
                 camera_page = Camera_Page()
                 self.camera_tab.addTab(camera_page, self.camera_list.item(selected_row, 0).text())
-
                 self.camera = QCamera(item)
                 self.viewfinder = QCameraViewfinder(camera_page.video_widget)
                 self.camera.setViewfinder(self.viewfinder)
                 self.camera.start()
-
 
     def capture_std(self):
         pass
