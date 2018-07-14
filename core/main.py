@@ -10,9 +10,9 @@ date: 2018/5/14
 import sys
 import serial
 import serial.tools.list_ports as list_ports
-from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox, QTableWidgetItem
-from PyQt5.QtMultimedia import QCameraInfo, QCamera
-from PyQt5.QtMultimediaWidgets import QCameraViewfinder
+from PyQt5 import QtWidgets
+from PyQt5 import QtMultimedia
+from PyQt5 import QtMultimediaWidgets
 from core.mainwindow import Ui_Form
 from core.camera_page import Camera_Page
 
@@ -20,7 +20,7 @@ ser = serial.Serial()
 camera_list = []
 
 
-class MainWindow(QWidget, Ui_Form):
+class MainWindow(QtWidgets.QWidget, Ui_Form):
     """
     Setup window
     """
@@ -47,31 +47,31 @@ class MainWindow(QWidget, Ui_Form):
 
     def refresh_camera_list(self):
         self.camera_list.clearContents()
-        cameras = QCameraInfo.availableCameras()
+        cameras = QtMultimedia.QCameraInfo.availableCameras()
         if len(cameras) == 0:
-            QMessageBox.information(self, 'Camera Info', "Can't find any camera device")
+            QtWidgets.QMessageBox.information(self, 'Camera Info', "Can't find any camera device")
             return
 
         self.camera_list.setRowCount(len(cameras))
         for i, item in enumerate(cameras):
-            id = QTableWidgetItem('camera%s' % i)
-            name = QTableWidgetItem(item.description())
+            id = QtWidgets.QTableWidgetItem('camera%s' % i)
+            name = QtWidgets.QTableWidgetItem(item.description())
             self.camera_list.setItem(i, 0, id)
             self.camera_list.setItem(i, 1, name)
 
     def add_camera(self):
         if self.camera_list.rowCount() == 0:
-            QMessageBox.information(self, 'Camera Info', "Can't find any camera device")
+            QtWidgets.QMessageBox.information(self, 'Camera Info', "Can't find any camera device")
             return
 
-        cameras = QCameraInfo.availableCameras()
+        cameras = QtMultimedia.QCameraInfo.availableCameras()
         selected_row = self.camera_list.currentRow()
         for item in cameras:
             if self.camera_list.item(selected_row, 1).text() == item.description():
                 camera_page = Camera_Page()
                 self.camera_tab.addTab(camera_page, self.camera_list.item(selected_row, 0).text())
-                self.camera = QCamera(item)
-                self.viewfinder = QCameraViewfinder(camera_page.video_widget)
+                self.camera = QtMultimedia.QCamera(item)
+                self.viewfinder = QtMultimediaWidgets.QCameraViewfinder(camera_page.video_widget)
                 self.camera.setViewfinder(self.viewfinder)
                 self.camera.start()
 
@@ -89,25 +89,25 @@ class MainWindow(QWidget, Ui_Form):
     def open_port(self):
         port_name = self.port_lists_combox.currentText()
         if port_name == '':
-            QMessageBox.information(self, 'Invalid Port Name', 'Current selected port name is none')
+            QtWidgets.QMessageBox.information(self, 'Invalid Port Name', 'Current selected port name is none')
             return
 
         ser.port = port_name
         if self.open_port_btn.text() == '关闭COM':
             ser.close()
-            QMessageBox.information(self, 'Close Com Port', '{} has been closed successful'.format(port_name))
+            QtWidgets.QMessageBox.information(self, 'Close Com Port', '{} has been closed successful'.format(port_name))
             self.open_port_btn.setText('打开COM')
             self.refresh_port_btn.setEnabled(True)
             self.port_lists_combox.setEnabled(True)
         else:
             try:
                 ser.open()
-                QMessageBox.information(self, 'Open Successful', '{} has been opened successful'.format(port_name))
+                QtWidgets.QMessageBox.information(self, 'Open Successful', '{} has been opened successful'.format(port_name))
                 self.open_port_btn.setText('关闭COM')
                 self.refresh_port_btn.setEnabled(False)
                 self.port_lists_combox.setEnabled(False)
             except serial.SerialException as e:
-                QMessageBox.information(self, 'Open Fail', e.__str__())
+                QtWidgets.QMessageBox.information(self, 'Open Fail', e.__str__())
 
     def start_supervision(self):
         abc = Camera_Page()
@@ -116,7 +116,7 @@ class MainWindow(QWidget, Ui_Form):
 
 
 def run():
-    app = QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     main_window = MainWindow()
     main_window.show()
     sys.exit(app.exec_())
