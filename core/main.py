@@ -10,9 +10,7 @@ date: 2018/5/14
 import sys
 import serial
 import serial.tools.list_ports as list_ports
-from PyQt5 import QtWidgets
-from PyQt5 import QtMultimedia
-from PyQt5 import QtMultimediaWidgets
+from PyQt5 import QtWidgets, QtMultimedia, QtMultimediaWidgets
 from core.mainwindow import Ui_Form
 from core.camera_page import Camera_Page
 
