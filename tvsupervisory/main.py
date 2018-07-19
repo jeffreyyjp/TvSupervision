@@ -11,8 +11,8 @@ import sys
 import serial
 import serial.tools.list_ports as list_ports
 from PyQt5 import QtWidgets, QtMultimedia, QtMultimediaWidgets
-from core.mainwindow import Ui_Form
-from core.camera_page import Camera_Page
+from tvsupervisory.mainwindow import Ui_Form
+from tvsupervisory.camera_page import Camera_Page
 
 ser = serial.Serial()
 camera_list = []
