@@ -6,7 +6,6 @@ author: Jeffrey
 date: 2018/5/14
 """
 
-
 import sys
 import serial
 import serial.tools.list_ports as list_ports
@@ -100,7 +99,8 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
         else:
             try:
                 ser.open()
-                QtWidgets.QMessageBox.information(self, 'Open Successful', '{} has been opened successful'.format(port_name))
+                QtWidgets.QMessageBox.information(self, 'Open Successful',
+                                                  '{} has been opened successful'.format(port_name))
                 self.open_port_btn.setText('关闭COM')
                 self.refresh_port_btn.setEnabled(False)
                 self.port_lists_combox.setEnabled(False)
