@@ -14,7 +14,7 @@ from tvsupervisory.mainwindow import Ui_Form
 from tvsupervisory.camera_page import Camera_Page
 
 ser = serial.Serial()
-camera_list = []
+# cameras = []
 
 
 class MainWindow(QtWidgets.QWidget, Ui_Form):
@@ -26,10 +26,12 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
         """Constructor
         """
 
+        self.cameras = []
+
         super(MainWindow, self).__init__()
         self.setupUi(self)
 
-        self.refresh_camera_list_btn.clicked.connect(self.refresh_camera_list)
+        self.refresh_camera_table_btn.clicked.connect(self.refresh_camera_table)
         self.add_camera_btn.clicked.connect(self.add_camera)
         self.capture_std_btn.clicked.connect(self.capture_std)
         self.refresh_port_btn.clicked.connect(self.refresh_port)
@@ -39,34 +41,39 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
         self.init_data()
 
     def init_data(self):
-        self.refresh_camera_list()
+        self.refresh_camera_table()
         # TODO
 
-    def refresh_camera_list(self):
-        self.camera_list.clearContents()
-        cameras = QtMultimedia.QCameraInfo.availableCameras()
-        if len(cameras) == 0:
+    def refresh_camera_table(self):
+        self.camera_table.clearContents()
+        cameras_info = QtMultimedia.QCameraInfo.availableCameras()
+        if len(cameras_info) == 0:
             QtWidgets.QMessageBox.information(self, 'Camera Info', "Can't find any camera device")
             return
 
-        self.camera_list.setRowCount(len(cameras))
-        for i, item in enumerate(cameras):
+        self.camera_table.setRowCount(len(cameras_info))
+        for i, item in enumerate(cameras_info):
             id = QtWidgets.QTableWidgetItem('camera%s' % i)
             name = QtWidgets.QTableWidgetItem(item.description())
-            self.camera_list.setItem(i, 0, id)
-            self.camera_list.setItem(i, 1, name)
+            self.camera_table.setItem(i, 0, id)
+            self.camera_table.setItem(i, 1, name)
+            self.cameras.append(QtMultimedia.QCamera(item))
+
+        for item in self.cameras:
+            print(item.status())
 
     def add_camera(self):
-        if self.camera_list.rowCount() == 0:
+        if self.camera_table.rowCount() == 0:
             QtWidgets.QMessageBox.information(self, 'Camera Info', "Can't find any camera device")
             return
 
         cameras = QtMultimedia.QCameraInfo.availableCameras()
-        selected_row = self.camera_list.currentRow()
+        selected_row = self.camera_table.currentRow()
         for item in cameras:
-            if self.camera_list.item(selected_row, 1).text() == item.description():
+            if self.camera_table.item(selected_row, 1).text() == item.description():
+
                 camera_page = Camera_Page()
-                self.camera_tab.addTab(camera_page, self.camera_list.item(selected_row, 0).text())
+                self.camera_tab.addTab(camera_page, self.camera_table.item(selected_row, 0).text())
                 self.camera = QtMultimedia.QCamera(item)
                 self.viewfinder = QtMultimediaWidgets.QCameraViewfinder(camera_page.video_widget)
                 self.camera.setViewfinder(self.viewfinder)

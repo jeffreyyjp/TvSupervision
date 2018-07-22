@@ -16,7 +16,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>TvPowerOnOffSupervisory</string>
+   <string>TvSupervisory</string>
   </property>
   <property name="windowIcon">
    <iconset>
@@ -43,7 +43,7 @@
      </widget>
     </item>
     <item row="0" column="0" colspan="4">
-     <widget class="QTableWidget" name="camera_list">
+     <widget class="QTableWidget" name="camera_table">
       <property name="columnCount">
        <number>2</number>
       </property>
@@ -60,7 +60,7 @@
      </widget>
     </item>
     <item row="1" column="1">
-     <widget class="QPushButton" name="refresh_camera_list_btn">
+     <widget class="QPushButton" name="refresh_camera_table_btn">
       <property name="text">
        <string>刷新列表</string>
       </property>
@@ -312,7 +312,7 @@
      <x>540</x>
      <y>590</y>
      <width>296</width>
-     <height>27</height>
+     <height>32</height>
     </rect>
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout_6">

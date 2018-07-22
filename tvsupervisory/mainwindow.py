@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created by: PyQt5 UI code generator 5.9.2
+# Created by: PyQt5 UI code generator 5.6
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -26,18 +26,18 @@ class Ui_Form(object):
         self.capture_std_btn = QtWidgets.QPushButton(self.groupBox)
         self.capture_std_btn.setObjectName("capture_std_btn")
         self.gridLayout.addWidget(self.capture_std_btn, 1, 3, 1, 1)
-        self.camera_list = QtWidgets.QTableWidget(self.groupBox)
-        self.camera_list.setColumnCount(2)
-        self.camera_list.setObjectName("camera_list")
-        self.camera_list.setRowCount(0)
+        self.camera_table = QtWidgets.QTableWidget(self.groupBox)
+        self.camera_table.setColumnCount(2)
+        self.camera_table.setObjectName("camera_table")
+        self.camera_table.setRowCount(0)
         item = QtWidgets.QTableWidgetItem()
-        self.camera_list.setHorizontalHeaderItem(0, item)
+        self.camera_table.setHorizontalHeaderItem(0, item)
         item = QtWidgets.QTableWidgetItem()
-        self.camera_list.setHorizontalHeaderItem(1, item)
-        self.gridLayout.addWidget(self.camera_list, 0, 0, 1, 4)
-        self.refresh_camera_list_btn = QtWidgets.QPushButton(self.groupBox)
-        self.refresh_camera_list_btn.setObjectName("refresh_camera_list_btn")
-        self.gridLayout.addWidget(self.refresh_camera_list_btn, 1, 1, 1, 1)
+        self.camera_table.setHorizontalHeaderItem(1, item)
+        self.gridLayout.addWidget(self.camera_table, 0, 0, 1, 4)
+        self.refresh_camera_table_btn = QtWidgets.QPushButton(self.groupBox)
+        self.refresh_camera_table_btn.setObjectName("refresh_camera_table_btn")
+        self.gridLayout.addWidget(self.refresh_camera_table_btn, 1, 1, 1, 1)
         self.add_camera_btn = QtWidgets.QPushButton(self.groupBox)
         self.add_camera_btn.setObjectName("add_camera_btn")
         self.gridLayout.addWidget(self.add_camera_btn, 1, 2, 1, 1)
@@ -51,6 +51,7 @@ class Ui_Form(object):
         self.power_box = QtWidgets.QWidget()
         self.power_box.setObjectName("power_box")
         self.formLayout = QtWidgets.QFormLayout(self.power_box)
+        self.formLayout.setContentsMargins(0, 0, 0, 0)
         self.formLayout.setObjectName("formLayout")
         self.label = QtWidgets.QLabel(self.power_box)
         self.label.setObjectName("label")
@@ -68,6 +69,7 @@ class Ui_Form(object):
         self.direct_power = QtWidgets.QWidget()
         self.direct_power.setObjectName("direct_power")
         self.formLayout_2 = QtWidgets.QFormLayout(self.direct_power)
+        self.formLayout_2.setContentsMargins(0, 0, 0, 0)
         self.formLayout_2.setObjectName("formLayout_2")
         self.label_3 = QtWidgets.QLabel(self.direct_power)
         self.label_3.setObjectName("label_3")
@@ -97,6 +99,7 @@ class Ui_Form(object):
         self.pro800_power = QtWidgets.QWidget()
         self.pro800_power.setObjectName("pro800_power")
         self.formLayout_3 = QtWidgets.QFormLayout(self.pro800_power)
+        self.formLayout_3.setContentsMargins(0, 0, 0, 0)
         self.formLayout_3.setObjectName("formLayout_3")
         self.label_7 = QtWidgets.QLabel(self.pro800_power)
         self.label_7.setObjectName("label_7")
@@ -163,7 +166,7 @@ class Ui_Form(object):
         self.camera_tab.setGeometry(QtCore.QRect(10, 20, 811, 501))
         self.camera_tab.setObjectName("camera_tab")
         self.layoutWidget = QtWidgets.QWidget(Form)
-        self.layoutWidget.setGeometry(QtCore.QRect(540, 590, 296, 27))
+        self.layoutWidget.setGeometry(QtCore.QRect(540, 590, 296, 32))
         self.layoutWidget.setObjectName("layoutWidget")
         self.horizontalLayout_6 = QtWidgets.QHBoxLayout(self.layoutWidget)
         self.horizontalLayout_6.setContentsMargins(0, 0, 0, 0)
@@ -189,14 +192,14 @@ class Ui_Form(object):
 
     def retranslateUi(self, Form):
         _translate = QtCore.QCoreApplication.translate
-        Form.setWindowTitle(_translate("Form", "TvPowerOnOffSupervisory"))
+        Form.setWindowTitle(_translate("Form", "TvSupervisory"))
         self.groupBox.setTitle(_translate("Form", "CameraSetting"))
         self.capture_std_btn.setText(_translate("Form", "拍摄标准图"))
-        item = self.camera_list.horizontalHeaderItem(0)
+        item = self.camera_table.horizontalHeaderItem(0)
         item.setText(_translate("Form", "ID"))
-        item = self.camera_list.horizontalHeaderItem(1)
+        item = self.camera_table.horizontalHeaderItem(1)
         item.setText(_translate("Form", "Name"))
-        self.refresh_camera_list_btn.setText(_translate("Form", "刷新列表"))
+        self.refresh_camera_table_btn.setText(_translate("Form", "刷新列表"))
         self.add_camera_btn.setText(_translate("Form", "打开摄像头"))
         self.groupBox_2.setTitle(_translate("Form", "PowerType"))
         self.label.setText(_translate("Form", "开关机次数"))

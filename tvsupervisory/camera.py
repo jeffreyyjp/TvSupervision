@@ -6,41 +6,42 @@ author: Jeffrey
 date: 2018/7/12
 """
 
-from PyQt5.QtMultimedia import QCamera, QCameraInfo
-from PyQt5.QtGui import QGuiApplication
+from PyQt5 import QtMultimedia
+from PyQt5 import QtWidgets
 import sys
 
-class CameraDevice(QCamera):
+class CameraDevice(QtMultimedia.QCamera):
 
-    def __init__(self, id, name):
+    def __init__(self, camera_id):
         super(CameraDevice, self).__init__()
-        self.device_id = id
-        self.device_name = name
-
+        self.camera_id = bytearray(camera_id, encoding='ascii')
 
     @staticmethod
     def get_available_devices():
-        cameras_info = QCameraInfo.availableCameras()
+        cameras_info = QtMultimedia.QCameraInfo.availableCameras()
         cameras = []
         for item in cameras_info:
-            cameras.append(CameraDevice(item.deviceName(), item.description()))
+            cameras.append(CameraDevice(item.deviceName()))
         return cameras
 
 
     def camera_name(self):
-        return self.device_name
+        camera_info = QtMultimedia.QCameraInfo(self)
+        print(self)
+        return camera_info.description()
 
     def camera_id(self):
-        return self.device_id
+        return self.camera_id
 
     def is_opened(self):
         pass
 
     def start(self):
-        super().start()
+        self.start()
 
-app = QGuiApplication(sys.argv)
-
-a = CameraDevice.get_available_devices()
-for x in a:
-    print(x.camera_name(), x.camera_id())
+if __name__ == '__main__':
+    app = QtWidgets.QApplication(sys.argv)
+    a = CameraDevice.get_available_devices()
+    print(a)
+    for x in a:
+        print(x.camera_name())
