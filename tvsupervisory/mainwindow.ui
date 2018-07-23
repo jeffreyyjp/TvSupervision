@@ -45,16 +45,21 @@
     <item row="0" column="0" colspan="4">
      <widget class="QTableWidget" name="camera_table">
       <property name="columnCount">
-       <number>2</number>
+       <number>3</number>
       </property>
       <column>
        <property name="text">
-        <string>ID</string>
+        <string>Tag</string>
        </property>
       </column>
       <column>
        <property name="text">
         <string>Name</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>ID</string>
        </property>
       </column>
      </widget>
