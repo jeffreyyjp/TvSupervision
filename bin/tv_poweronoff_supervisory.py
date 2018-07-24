@@ -16,6 +16,6 @@ sys.path.append(base_dir)
 from tvsupervisory import main
 
 if __name__ == '__main__':
-    main.run()
+    main.main()
 
 

@@ -65,7 +65,7 @@
     </widget>
    </item>
    <item row="1" column="0">
-    <widget class="QWidget" name="video_widget" native="true">
+    <widget class="QWidget" name="video_window" native="true">
      <property name="styleSheet">
       <string notr="true">QWidget {border: 1px solid blank; }</string>
      </property>

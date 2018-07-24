@@ -11,9 +11,10 @@ import serial
 import serial.tools.list_ports as list_ports
 from PyQt5 import QtWidgets, QtMultimedia, QtMultimediaWidgets
 from tvsupervisory.mainwindow import Ui_Form
-from tvsupervisory.camera_page import Camera_Page
+from tvsupervisory.camera_page import CameraPage
 
 ser = serial.Serial()
+
 
 class MainWindow(QtWidgets.QWidget, Ui_Form):
     """
@@ -42,6 +43,7 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
     def init_data(self):
         if self.check_camera_availability():
             self.refresh_camera_table()
+        self.refresh_port()
         # TODO
 
     def check_camera_availability(self):
@@ -58,11 +60,11 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
         self.camera_table.setRowCount(len(self.cameras_info))
         for i, item in enumerate(self.cameras_info):
             tag = QtWidgets.QTableWidgetItem('camera%s' % i)
-            name = QtWidgets.QTableWidgetItem(item.description())
-            id = QtWidgets.QTableWidgetItem(item.deviceName())
+            camera_name = QtWidgets.QTableWidgetItem(item.description())
+            camera_id = QtWidgets.QTableWidgetItem(item.deviceName())
             self.camera_table.setItem(i, 0, tag)
-            self.camera_table.setItem(i, 1, name)
-            self.camera_table.setItem(i, 2, id)
+            self.camera_table.setItem(i, 1, camera_name)
+            self.camera_table.setItem(i, 2, camera_id)
             self.camera_table.hideColumn(2)
             self.cameras.append(QtMultimedia.QCamera(item))
 
@@ -76,13 +78,14 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
         selected_camera_id = self.camera_table.item(selected_row, 2).text()
         for item_camera in self.cameras:
             if selected_camera_id == QtMultimedia.QCameraInfo(item_camera).deviceName():
-                if item_camera.status() == QtMultimedia.QCamera.ActiveStatus:
+                if item_camera.state() == QtMultimedia.QCamera.ActiveState:
                     QtWidgets.QMessageBox.information(self, 'Camera Info', 'Camera is already opened')
                     return
-                camera_page = Camera_Page()
+                camera_page = CameraPage()
                 self.camera_tab.addTab(camera_page, selected_camera_tag)
-                self.viewfinder = QtMultimediaWidgets.QCameraViewfinder(camera_page.video_widget)
-                item_camera.setViewfinder(self.viewfinder)
+                viewfinder = QtMultimediaWidgets.QCameraViewfinder(camera_page.video_window)
+                item_camera.setViewfinder(viewfinder)
+                # item_camera.setViewfinder(camera_page.viewfinder)
                 item_camera.start()
 
     def capture_std(self):
@@ -121,12 +124,10 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
                 QtWidgets.QMessageBox.information(self, 'Open Fail', e.__str__())
 
     def start_supervision(self):
-        abc = Camera_Page()
-        abc.show()
-        self.camera_tab.addTab(abc, 'hello')
+        pass
 
 
-def run():
+def main():
     app = QtWidgets.QApplication(sys.argv)
     main_window = MainWindow()
     main_window.show()
@@ -134,4 +135,4 @@ def run():
 
 
 if __name__ == '__main__':
-    run()
+    main()
