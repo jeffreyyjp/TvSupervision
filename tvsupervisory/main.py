@@ -73,23 +73,30 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
             QtWidgets.QMessageBox.information(self, 'Camera Info', "Can't find any camera device")
             return
 
+        # if self.camera_table.is
+
         selected_row = self.camera_table.currentRow()
+        if selected_row == -1:
+            selected_row = 0
         selected_camera_tag = self.camera_table.item(selected_row, 0).text()
         selected_camera_id = self.camera_table.item(selected_row, 2).text()
         for item_camera in self.cameras:
             if selected_camera_id == QtMultimedia.QCameraInfo(item_camera).deviceName():
                 if item_camera.state() == QtMultimedia.QCamera.ActiveState:
-                    QtWidgets.QMessageBox.information(self, 'Camera Info', 'Camera is already opened')
+                    QtWidgets.QMessageBox.information(self, 'Camera Info', '%s is already opened' %selected_camera_tag)
                     return
                 camera_page = CameraPage()
                 self.camera_tab.addTab(camera_page, selected_camera_tag)
-                viewfinder = QtMultimediaWidgets.QCameraViewfinder(camera_page.video_window)
-                item_camera.setViewfinder(viewfinder)
-                # item_camera.setViewfinder(camera_page.viewfinder)
+                item_camera.setViewfinder(camera_page.viewfinder)
                 item_camera.start()
 
     def capture_std(self):
-        pass
+        if self.camera_tab.count() == 0:
+            QtWidgets.QMessageBox.information(self, 'Camera Info', 'Please open camera device')
+            return
+        current_camera_tag = self.camera_tab.tabText(self.camera_tab.currentIndex())
+        print(current_camera_tag)
+        # current_camera_id = self.camera_table.fin
 
     def refresh_port(self):
         self.port_lists_combox.clear()

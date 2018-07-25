@@ -16,5 +16,9 @@ class CameraPage(QtWidgets.QWidget, Ui_Video):
         super(CameraPage, self).__init__()
         self.setupUi(self)
 
-        self.viewfinder = QtMultimediaWidgets.QCameraViewfinder(self.video_window)
-        # self.viewfinder = QtMultimediaWidgets.QCameraViewfinder()
+        self.viewfinder = QtMultimediaWidgets.QCameraViewfinder()
+        # self.video_size = self.video_window.size()
+        # self.viewfinder.setSizePolicy(self.video_size.width(), self.video_size.height())
+        self.video_layout = QtWidgets.QGridLayout(self.video_window)
+        self.video_window.setLayout(QtWidgets.QHBoxLayout(self))
+        self.video_layout.addWidget(self.viewfinder)
