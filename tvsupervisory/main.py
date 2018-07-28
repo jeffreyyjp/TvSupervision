@@ -6,20 +6,25 @@ author: Jeffrey
 date: 2018/5/14
 """
 
-import sys
+# imports
 import serial
 import serial.tools.list_ports as list_ports
-from PyQt5 import QtWidgets, QtMultimedia, QtMultimediaWidgets
+import sys
+
+from PyQt5 import QtWidgets
+from PyQt5 import QtMultimedia
+from PyQt5 import QtMultimediaWidgets
+
 from tvsupervisory.mainwindow import Ui_Form
 from tvsupervisory.camera_page import CameraPage
-
-ser = serial.Serial()
 
 
 class MainWindow(QtWidgets.QWidget, Ui_Form):
     """
     Setup window
     """
+
+    serial_port = serial.Serial()
 
     def __init__(self):
         """Constructor
@@ -54,7 +59,8 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
     def refresh_camera_table(self):
         self.camera_table.clearContents()
         if len(self.cameras_info) == 0:
-            QtWidgets.QMessageBox.information(self, 'Camera Info', "Can't find any camera device")
+            QtWidgets.QMessageBox.information(self, 'Camera Info',
+                                              "Can't find any camera device")
             return
 
         self.camera_table.setRowCount(len(self.cameras_info))
@@ -69,8 +75,11 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
             self.cameras.append(QtMultimedia.QCamera(item))
 
     def add_camera(self):
+        message_title = ''
+        message_context = ''
         if self.camera_table.rowCount() == 0:
-            QtWidgets.QMessageBox.information(self, 'Camera Info', "Can't find any camera device")
+            QtWidgets.QMessageBox.information(self, message_title,
+                                              message_context)
             return
 
         # if self.camera_table.is
@@ -81,9 +90,12 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
         selected_camera_tag = self.camera_table.item(selected_row, 0).text()
         selected_camera_id = self.camera_table.item(selected_row, 2).text()
         for item_camera in self.cameras:
-            if selected_camera_id == QtMultimedia.QCameraInfo(item_camera).deviceName():
+            if selected_camera_id == QtMultimedia.QCameraInfo(
+                    item_camera).deviceName():
                 if item_camera.state() == QtMultimedia.QCamera.ActiveState:
-                    QtWidgets.QMessageBox.information(self, 'Camera Info', '%s is already opened' %selected_camera_tag)
+                    QtWidgets.QMessageBox.information(self, 'Camera Info',
+                                                      '%s is already opened'
+                                                      % selected_camera_tag)
                     return
                 camera_page = CameraPage()
                 self.camera_tab.addTab(camera_page, selected_camera_tag)
@@ -92,9 +104,11 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
 
     def capture_std(self):
         if self.camera_tab.count() == 0:
-            QtWidgets.QMessageBox.information(self, 'Camera Info', 'Please open camera device')
+            QtWidgets.QMessageBox.information(self, 'Camera Info',
+                                              'Please open camera device')
             return
-        current_camera_tag = self.camera_tab.tabText(self.camera_tab.currentIndex())
+        current_camera_tag = self.camera_tab.tabText(
+            self.camera_tab.currentIndex())
         print(current_camera_tag)
         # current_camera_id = self.camera_table.fin
 
@@ -109,26 +123,34 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
     def open_port(self):
         port_name = self.port_lists_combox.currentText()
         if port_name == '':
-            QtWidgets.QMessageBox.information(self, 'Invalid Port Name', 'Current selected port name is none')
+            QtWidgets.QMessageBox.information(self, 'Invalid Port Name',
+                                              'Current selected port name is '
+                                              'none')
             return
 
-        ser.port = port_name
+        self.serial_port.port = port_name  # configure initialized port
         if self.open_port_btn.text() == '关闭COM':
-            ser.close()
-            QtWidgets.QMessageBox.information(self, 'Close Com Port', '{} has been closed successful'.format(port_name))
+            self.serial_port.close()
+            QtWidgets.QMessageBox.information(self, 'Close Com Port',
+                                              '{} has been closed '
+                                              'successful'.format(
+                                                  port_name))
             self.open_port_btn.setText('打开COM')
             self.refresh_port_btn.setEnabled(True)
             self.port_lists_combox.setEnabled(True)
         else:
             try:
-                ser.open()
+                self.serial_port.open()
                 QtWidgets.QMessageBox.information(self, 'Open Successful',
-                                                  '{} has been opened successful'.format(port_name))
+                                                  '{} has been opened '
+                                                  'successful'.format(
+                                                      port_name))
                 self.open_port_btn.setText('关闭COM')
                 self.refresh_port_btn.setEnabled(False)
                 self.port_lists_combox.setEnabled(False)
             except serial.SerialException as e:
-                QtWidgets.QMessageBox.information(self, 'Open Fail', e.__str__())
+                QtWidgets.QMessageBox.information(self, 'Open Fail',
+                                                  e.__str__())
 
     def start_supervision(self):
         pass
