@@ -27,8 +27,6 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
     serial_port = serial.Serial()
 
     def __init__(self):
-        """Constructor
-        """
 
         self.cameras = []
         self.cameras_info = QtMultimedia.QCameraInfo.availableCameras()
@@ -150,7 +148,7 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
                 self.port_lists_combox.setEnabled(False)
             except serial.SerialException as e:
                 QtWidgets.QMessageBox.information(self, 'Open Fail',
-                                                  e.__str__())
+                                                  str(e))
 
     def start_supervision(self):
         pass

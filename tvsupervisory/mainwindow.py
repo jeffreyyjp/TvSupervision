@@ -184,7 +184,7 @@ class Ui_Form(object):
         self.horizontalLayout_6.addItem(spacerItem2)
 
         self.retranslateUi(Form)
-        self.stackedWidget.setCurrentIndex(1)
+        self.stackedWidget.setCurrentIndex(0)
         self.camera_tab.setCurrentIndex(-1)
         self.comboBox.currentIndexChanged['int'].connect(self.stackedWidget.setCurrentIndex)
         QtCore.QMetaObject.connectSlotsByName(Form)
