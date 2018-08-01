@@ -1,12 +1,14 @@
 #!/usr/bin/python  
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 """
 author: Jeffrey
 date: 2018/7/5
 """
 
-from PyQt5 import QtWidgets, QtMultimediaWidgets
+from PyQt5 import QtMultimediaWidgets
+from PyQt5 import QtWidgets
+
 from tvsupervisory.camerawindow import Ui_Video
 
 

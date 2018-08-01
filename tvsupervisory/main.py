@@ -1,5 +1,5 @@
 #!/usr/bin/python  
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 """
 author: Jeffrey
@@ -8,31 +8,33 @@ date: 2018/5/14
 
 # imports
 import serial
-import serial.tools.list_ports as list_ports
 import sys
 
-from PyQt5 import QtWidgets
 from PyQt5 import QtMultimedia
-from PyQt5 import QtMultimediaWidgets
+from PyQt5 import QtWidgets
 
-from tvsupervisory.mainwindow import Ui_Form
-from tvsupervisory.camera_page import CameraPage
+# from PyQt5 import QtMultimediaWidgets
+
+from tvsupervisory import camera_handler
+from tvsupervisory import comport_handler
+from tvsupervisory import mainwindow
+from tvsupervisory import camera_window
 
 
-class MainWindow(QtWidgets.QWidget, Ui_Form):
+class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
     """
     Setup window
     """
 
-    serial_port = serial.Serial()
-
     def __init__(self):
 
-        self.cameras = []
-        self.cameras_info = QtMultimedia.QCameraInfo.availableCameras()
+        self.serial_port = serial.Serial()
+        self.cameras = camera_handler.get_all_cameras()
 
         super(MainWindow, self).__init__()
         self.setupUi(self)
+
+        # self.setMinimumSize(400, 300)
 
         self.refresh_camera_table_btn.clicked.connect(self.refresh_camera_table)
         self.add_camera_btn.clicked.connect(self.add_camera)
@@ -44,40 +46,39 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
         self.init_data()
 
     def init_data(self):
-        if self.check_camera_availability():
+        """Initialize main window.
+
+        Get camera, comport, and test result dir info.
+        """
+
+        if camera_handler.check_camera_availability():
             self.refresh_camera_table()
         self.refresh_port()
         # TODO
 
-    def check_camera_availability(self):
-        if len(self.cameras_info) > 0:
-            return True
-        return False
-
     def refresh_camera_table(self):
         self.camera_table.clearContents()
-        if len(self.cameras_info) == 0:
+        if not camera_handler.check_camera_availability():
             QtWidgets.QMessageBox.information(self, 'Camera Info',
                                               "Can't find any camera device")
             return
 
-        self.camera_table.setRowCount(len(self.cameras_info))
-        for i, item in enumerate(self.cameras_info):
+        self.camera_table.setRowCount(camera_handler.get_camera_count())
+        for i, cam in enumerate(self.cameras):
             tag = QtWidgets.QTableWidgetItem('camera%s' % i)
-            camera_name = QtWidgets.QTableWidgetItem(item.description())
-            camera_id = QtWidgets.QTableWidgetItem(item.deviceName())
+            camera_name = QtWidgets.QTableWidgetItem(
+                camera_handler.get_camera_description(cam))
+            camera_id = QtWidgets.QTableWidgetItem(
+                camera_handler.get_camera_name(cam))
             self.camera_table.setItem(i, 0, tag)
             self.camera_table.setItem(i, 1, camera_name)
             self.camera_table.setItem(i, 2, camera_id)
             self.camera_table.hideColumn(2)
-            self.cameras.append(QtMultimedia.QCamera(item))
 
     def add_camera(self):
-        message_title = ''
-        message_context = ''
         if self.camera_table.rowCount() == 0:
-            QtWidgets.QMessageBox.information(self, message_title,
-                                              message_context)
+            QtWidgets.QMessageBox.information(self, 'Camera Info',
+                                              "Can't find any camera device")
             return
 
         # if self.camera_table.is
@@ -87,18 +88,18 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
             selected_row = 0
         selected_camera_tag = self.camera_table.item(selected_row, 0).text()
         selected_camera_id = self.camera_table.item(selected_row, 2).text()
-        for item_camera in self.cameras:
-            if selected_camera_id == QtMultimedia.QCameraInfo(
-                    item_camera).deviceName():
-                if item_camera.state() == QtMultimedia.QCamera.ActiveState:
+
+        for cam in self.cameras:
+            if selected_camera_id == camera_handler.get_camera_name(cam):
+                if cam.state() == QtMultimedia.QCamera.ActiveState:
                     QtWidgets.QMessageBox.information(self, 'Camera Info',
                                                       '%s is already opened'
                                                       % selected_camera_tag)
                     return
-                camera_page = CameraPage()
+                camera_page = camera_window.CameraPage()
                 self.camera_tab.addTab(camera_page, selected_camera_tag)
-                item_camera.setViewfinder(camera_page.viewfinder)
-                item_camera.start()
+                cam.setViewfinder(camera_page.viewfinder)
+                cam.start()
 
     def capture_std(self):
         if self.camera_tab.count() == 0:
@@ -112,11 +113,7 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
 
     def refresh_port(self):
         self.port_lists_combox.clear()
-        com_list = list_ports.comports()
-        port_name_list = []
-        for port_item in com_list:
-            port_name_list.append(port_item[0])
-        self.port_lists_combox.addItems(sorted(port_name_list))
+        self.port_lists_combox.addItems(comport_handler.get_comports_name())
 
     def open_port(self):
         port_name = self.port_lists_combox.currentText()
@@ -155,6 +152,7 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
 
 
 def main():
+    """Module's main entrance, """
     app = QtWidgets.QApplication(sys.argv)
     main_window = MainWindow()
     main_window.show()
