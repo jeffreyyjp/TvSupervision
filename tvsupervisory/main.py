@@ -148,6 +148,23 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
                                                   str(e))
 
     def start_supervision(self):
+        if not self.check_conditions():
+            return
+        else:
+            pass
+
+    def check_conditions(self):
+        """Check preconditions is ready.
+
+        Check:
+            1. Camera is open.
+            2. Comport is open.
+            3. Test result dir is valid.
+            4. Any config parm is ready for use.
+            ...
+
+        :return: bool
+        """
         pass
 
 

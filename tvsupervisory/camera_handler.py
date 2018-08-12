@@ -6,9 +6,10 @@ author: Jeffrey
 date: 2018/7/12
 """
 
-from PyQt5 import QtMultimedia
-from PyQt5 import QtWidgets
 import sys
+
+from PyQt5 import QtWidgets
+from PyQt5 import QtMultimedia
 
 
 def check_camera_availability():
