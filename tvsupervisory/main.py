@@ -10,15 +10,15 @@ date: 2018/5/14
 import serial
 import sys
 
-from PyQt5 import QtMultimedia
 from PyQt5 import QtWidgets
+from PyQt5 import QtMultimedia
 
 # from PyQt5 import QtMultimediaWidgets
 
 from tvsupervisory import camera_handler
+from tvsupervisory import camera_window
 from tvsupervisory import comport_handler
 from tvsupervisory import mainwindow
-from tvsupervisory import camera_window
 
 
 class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
