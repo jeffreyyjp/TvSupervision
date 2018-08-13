@@ -18,7 +18,7 @@ from PyQt5 import QtMultimedia
 from tvsupervisory import camera_handler
 from tvsupervisory import camera_window
 from tvsupervisory import comport_handler
-from tvsupervisory import mainwindow
+from tvsupervisory.ui import mainwindow
 
 
 class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):

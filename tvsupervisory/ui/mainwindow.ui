@@ -20,7 +20,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>../res/tv.jpg</normaloff>../res/tv.jpg</iconset>
+    <normaloff>../../docs/images/tv.jpg</normaloff>../../docs/images/tv.jpg</iconset>
   </property>
   <widget class="QGroupBox" name="groupBox">
    <property name="geometry">
