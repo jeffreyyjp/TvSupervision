@@ -30,7 +30,7 @@ class Ui_Form(object):
                        QtGui.QIcon.Normal, QtGui.QIcon.On)
         form.setWindowIcon(icon)
 
-        # Power type including widgets and layout.
+        # Power type widget including widgets and layout.
         self.powertype_groupbox = QtWidgets.QGroupBox(form)
         self.powertype_groupbox.setObjectName('powertype_groupbox')
         self.powertype_layout = QtWidgets.QVBoxLayout(self.powertype_groupbox)
@@ -38,6 +38,7 @@ class Ui_Form(object):
         self.powertype_stackedwidget = QtWidgets.QStackedWidget(
             self.powertype_groupbox)
         self.powertype_stackedwidget.setObjectName('powertype_stackedwidget')
+        self.powertype_layout.addWidget(self.powertype_stackedwidget)
         # Power box widget including it's child widget and layout
         self.powerbox_widget = QtWidgets.QWidget()
         self.powerbox_widget.setObjectName('powerbox_widget')
@@ -84,4 +85,50 @@ class Ui_Form(object):
                                        self.directpower_offtime_lineedit)
         self.directpower_keyvalue_label = QtWidgets.QLabel(self.directpower_widget)
         self.directpower_keyvalue_label.setObjectName('directpower_keyvalue_label')
+        self.directpower_keyvalue_lineedit = QtWidgets.QLineEdit(self.directpower_widget)
+        self.directpower_keyvalue_lineedit.setObjectName('directpower_keyvalue_lineedit')
+        self.directpower_layout.addRow(self.directpower_keyvalue_label,
+                                       self.directpower_keyvalue_lineedit)
+        self.directpower_interval_label = QtWidgets.QLabel(self.directpower_widget)
+        self.directpower_interval_label.setObjectName('pdirectpower_interval_label')
+        self.directpower_interval_lineedit = QtWidgets.QLineEdit(
+            self.directpower_widget)
+        self.directpower_interval_lineedit.setObjectName(
+            'pdirectpower_interval_lineedit')
+        self.directpower_layout.addRow(self.directpower_interval_label,
+                                    self.directpower_interval_lineedit)
+        self.powertype_stackedwidget.addWidget(self.directpower_widget)
+        # PRO 800 cross power widget including it's child widget and layout
+        self.crosspower_widget = QtWidgets.QWidget()
+        self.crosspower_widget.setObjectName('crosspower_widget')
+        self.crosspower_layout = QtWidgets.QFormLayout(self.crosspower_widget)
+        self.crosspower_layout.setObjectName('crosspower_layout')
+        self.crosspower_count_label = QtWidgets.QLabel(self.crosspower_widget)
+        self.crosspower_count_label.setObjectName('crosspower_count_label')
+        self.crosspower_count_lineedit = QtWidgets.QLineEdit(self.crosspower_widget)
+        self.crosspower_count_lineedit.setObjectName('crosspower_count_lineedit')
+        self.crosspower_layout.addRow(self.crosspower_count_label, self.crosspower_count_lineedit)
+        self.crosspower_address_label = QtWidgets.QLabel(self.crosspower_widget)
+        self.crosspower_address_label.setObjectName('crosspower_address_labe')
+        self.crosspower_address_lineedit = QtWidgets.QLineEdit(self.crosspower_widget)
+        self.crosspower_address_lineedit.setObjectName('crosspower_address_lineedit')
+        self.crosspower_layout.addRow(self.crosspower_address_label, self.crosspower_address_lineedit)
+        self.crosspower_on_keyvalue_label = QtWidgets.QLabel(self.crosspower_widget)
+        self.crosspower_on_keyvalue_label.setObjectName('crosspower_on_keyvalue_label')
+        self.crosspower_on_keyvalue_lineedit = QtWidgets.QLineEdit(self.crosspower_widget)
+        self.crosspower_on_keyvalue_lineedit.setObjectName('crosspower_on_keyvalue_lineedit')
+        self.crosspower_layout.addRow(self.crosspower_on_keyvalue_label, self.crosspower_on_keyvalue_lineedit)
+        self.crosspower_off_keyvalue_label = QtWidgets.QLabel(
+            self.crosspower_widget)
+        self.crosspower_off_keyvalue_label.setObjectName('crosspower_off_keyvalue_label')
+        self.crosspower_off_keyvalue_lineedit = QtWidgets.QLineEdit(self.crosspower_widget)
+        self.crosspower_off_keyvalue_lineedit.setObjectName('crosspower_off_keyvalue_lineedit')
+        self.crosspower_layout.addRow(self.crosspower_off_keyvalue_label, self.crosspower_off_keyvalue_lineedit)
+        self.crosspower_interval_label = QtWidgets.QLabel(self.crosspower_widget)
+        self.crosspower_interval_label.setObjectName('crosspower_interval_label')
+        self.crosspower_interval_lineedit = QtWidgets.QLineEdit(self.crosspower_widget)
+        self.crosspower_interval_lineedit.setObjectName('crosspower_interval_lineedit')
+        self.crosspower_layout.addRow(self.crosspower_interval_label, self.crosspower_interval_lineedit)
+        self.powertype_stackedwidget.addWidget(self.crosspower_widget)
+
 
