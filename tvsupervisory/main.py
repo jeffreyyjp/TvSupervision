@@ -12,6 +12,7 @@ import sys
 
 from PyQt5 import QtWidgets
 from PyQt5 import QtMultimedia
+from PyQt5 import QtMultimediaWidgets
 
 # from PyQt5 import QtMultimediaWidgets
 
@@ -96,9 +97,12 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
                                                       '%s is already opened'
                                                       % selected_camera_tag)
                     return
+
                 camera_page = camera_window.CameraPage()
                 self.camera_tab.addTab(camera_page, selected_camera_tag)
-                cam.setViewfinder(camera_page.viewfinder)
+                self.viewfinder = QtMultimediaWidgets.QCameraViewfinder()
+                self.viewfinder.show()
+                cam.setViewfinder(self.viewfinder)
                 cam.start()
 
     def capture_std(self):
