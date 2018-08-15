@@ -185,10 +185,10 @@ class Ui_Form(object):
         self.camerabuttons_layout = QtWidgets.QHBoxLayout(
             self.camerasettings_widget)
         self.camerabuttons_layout.setObjectName('camerabuttons_layout')
-        self.refreshcameratable_pushbutton = QtWidgets.QPushButton()
-        self.refreshcameratable_pushbutton.setObjectName(
+        self.refreshcamera_pushbutton = QtWidgets.QPushButton()
+        self.refreshcamera_pushbutton.setObjectName(
             'refreshcameratable_pushbutton')
-        self.camerabuttons_layout.addWidget(self.refreshcameratable_pushbutton)
+        self.camerabuttons_layout.addWidget(self.refreshcamera_pushbutton)
         self.opencamera_pushbutton = QtWidgets.QPushButton()
         self.opencamera_pushbutton.setObjectName('opencamera_pushbutton')
         self.camerabuttons_layout.addWidget(self.opencamera_pushbutton)
@@ -201,22 +201,37 @@ class Ui_Form(object):
         # Widgets including comport and result settings
         self.comportsettings_widget = QtWidgets.QWidget()
         self.comportsettings_widget.setObjectName('comportsettings_widget')
-
+        self.comportsettings_layout = QtWidgets.QHBoxLayout(
+            self.comportsettings_widget)
+        self.comportsettings_layout.setObjectName('comportsettings_layout')
+        self.refreshcomport_pushbutton = QtWidgets.QPushButton()
+        self.refreshcomport_pushbutton.setObjectName('refreshport_pushbutton')
+        self.comportsettings_layout.addWidget(self.refreshcomport_pushbutton)
+        self.comport_combobox = QtWidgets.QComboBox()
+        self.comport_combobox.setObjectName('comport_combobox')
+        self.comportsettings_layout.addWidget(self.comport_combobox)
+        self.opencomport_pushbutton = QtWidgets.QPushButton()
+        self.opencomport_pushbutton.setObjectName('opencomport_pushbutton')
+        self.comportsettings_layout.addWidget(self.opencomport_pushbutton)
+        self.controlsettings_tabwidget.addTab(self.comportsettings_widget, '')
 
         self.retranslateUi(form)
         self.powertype_stackedwidget.setCurrentIndex(0)
-        self.powertype_combobox.currentIndexChanged['int'].connect(
+        self.powertype_combobox.currentIndexChanged.connect(
             self.powertype_stackedwidget.setCurrentIndex)
         QtCore.QMetaObject.connectSlotsByName(form)
 
     def retranslateUi(self, form):
         _translate = QtCore.QCoreApplication.translate
         form.setWindowTitle(_translate('Form', 'TvSupervisory'))
+        self.controlsettings_groupbox.setTitle(_translate('Form', '设置'))
 
         self.controlsettings_tabwidget.setTabText(0, _translate('Form',
                                                                 '开关机类型'))
         self.controlsettings_tabwidget.setTabText(1, _translate('Form',
-                                                                '摄像头配置'))
+                                                                '摄像头设置'))
+        self.controlsettings_tabwidget.setTabText(2, _translate('Form',
+                                                                '串口设置'))
 
         self.powerbox_count_label.setText(_translate('Form', '开关机次数'))
         self.powerbox_interval_label.setText(_translate('Form', '拍摄时间间隔'))
@@ -239,6 +254,9 @@ class Ui_Form(object):
         item.setText(_translate('Form', 'Name'))
         item = self.cameratable_tablewidget.horizontalHeaderItem(2)
         item.setText(_translate('Form', 'ID'))
-        self.refreshcameratable_pushbutton.setText(_translate('Form', '刷新列表'))
+        self.refreshcamera_pushbutton.setText(_translate('Form', '刷新列表'))
         self.opencamera_pushbutton.setText(_translate('Form', '打开摄像头'))
         self.capturestd_pushbutton.setText(_translate('Form', '拍摄标准图'))
+
+        self.refreshcomport_pushbutton.setText(_translate('Form', '刷新'))
+        self.opencomport_pushbutton.setText(_translate('Form', '打开COM'))

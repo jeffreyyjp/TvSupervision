@@ -6,20 +6,21 @@ author: Jeffrey
 date: 2018/5/14
 """
 
-# imports
-import serial
 import sys
 
-from PyQt5 import QtWidgets
+# imports
+import serial
 from PyQt5 import QtMultimedia
 from PyQt5 import QtMultimediaWidgets
-
-# from PyQt5 import QtMultimediaWidgets
+from PyQt5 import QtWidgets
 
 from tvsupervisory import camera_handler
 from tvsupervisory import camera_window
 from tvsupervisory import comport_handler
-from tvsupervisory.ui import mainwindow
+from tvsupervisory import mainwindow
+
+
+# from PyQt5 import QtMultimediaWidgets
 
 
 class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
@@ -37,12 +38,12 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
 
         # self.setMinimumSize(400, 300)
 
-        self.refresh_camera_table_btn.clicked.connect(self.refresh_camera_table)
-        self.add_camera_btn.clicked.connect(self.add_camera)
-        self.capture_std_btn.clicked.connect(self.capture_std)
-        self.refresh_port_btn.clicked.connect(self.refresh_port)
-        self.open_port_btn.clicked.connect(self.open_port)
-        self.start_supervision_btn.clicked.connect(self.start_supervision)
+        self.refreshcamera_pushbutton.clicked.connect(self.refresh_camera_table)
+        self.opencamera_pushbutton.clicked.connect(self.add_camera)
+        self.capturestd_pushbutton.clicked.connect(self.capture_std)
+        self.refreshcomport_pushbutton.clicked.connect(self.refresh_port)
+        self.opencomport_pushbutton.clicked.connect(self.open_port)
+        # self.start_supervision_btn.clicked.connect(self.start_supervision)
 
         self.init_data()
 
@@ -58,23 +59,23 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         # TODO
 
     def refresh_camera_table(self):
-        self.camera_table.clearContents()
+        self.cameratable_tablewidget.clearContents()
         if not camera_handler.check_camera_availability():
             QtWidgets.QMessageBox.information(self, 'Camera Info',
                                               "Can't find any camera device")
             return
 
-        self.camera_table.setRowCount(camera_handler.get_camera_count())
+        self.cameratable_tablewidget.setRowCount(
+            camera_handler.get_camera_count())
         for i, cam in enumerate(self.cameras):
             tag = QtWidgets.QTableWidgetItem('camera%s' % i)
             camera_name = QtWidgets.QTableWidgetItem(
                 camera_handler.get_camera_description(cam))
             camera_id = QtWidgets.QTableWidgetItem(
                 camera_handler.get_camera_name(cam))
-            self.camera_table.setItem(i, 0, tag)
-            self.camera_table.setItem(i, 1, camera_name)
-            self.camera_table.setItem(i, 2, camera_id)
-            self.camera_table.hideColumn(2)
+            self.cameratable_tablewidget.setItem(i, 0, tag)
+            self.cameratable_tablewidget.setItem(i, 1, camera_name)
+            self.cameratable_tablewidget.setItem(i, 2, camera_id)
 
     def add_camera(self):
         if self.camera_table.rowCount() == 0:
@@ -116,11 +117,11 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         # current_camera_id = self.camera_table.fin
 
     def refresh_port(self):
-        self.port_lists_combox.clear()
-        self.port_lists_combox.addItems(comport_handler.get_comports_name())
+        self.comport_combobox.clear()
+        self.comport_combobox.addItems(comport_handler.get_comports_name())
 
     def open_port(self):
-        port_name = self.port_lists_combox.currentText()
+        port_name = self.comport_combobox.currentText()
         if port_name == '':
             QtWidgets.QMessageBox.information(self, 'Invalid Port Name',
                                               'Current selected port name is '
@@ -128,15 +129,15 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
             return
 
         self.serial_port.port = port_name  # configure initialized port
-        if self.open_port_btn.text() == '关闭COM':
+        if self.opencomport_pushbutton.text() == '关闭COM':
             self.serial_port.close()
             QtWidgets.QMessageBox.information(self, 'Close Com Port',
                                               '{} has been closed '
                                               'successful'.format(
                                                   port_name))
-            self.open_port_btn.setText('打开COM')
-            self.refresh_port_btn.setEnabled(True)
-            self.port_lists_combox.setEnabled(True)
+            self.opencomport_pushbutton.setText('打开COM')
+            self.refreshcomport_pushbutton.setEnabled(True)
+            self.comport_combobox.setEnabled(True)
         else:
             try:
                 self.serial_port.open()
@@ -144,9 +145,9 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
                                                   '{} has been opened '
                                                   'successful'.format(
                                                       port_name))
-                self.open_port_btn.setText('关闭COM')
-                self.refresh_port_btn.setEnabled(False)
-                self.port_lists_combox.setEnabled(False)
+                self.opencomport_pushbutton.setText('关闭COM')
+                self.refreshcomport_pushbutton.setEnabled(False)
+                self.comport_combobox.setEnabled(False)
             except serial.SerialException as e:
                 QtWidgets.QMessageBox.information(self, 'Open Fail',
                                                   str(e))
