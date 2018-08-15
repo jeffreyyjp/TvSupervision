@@ -21,7 +21,7 @@ class Ui_Form(object):
         :return:
         """
         form.setObjectName('Form')
-        form.resize(300, 200)
+        form.resize(640, 480)
         font = QtGui.QFont()
         font.setFamily('微软雅黑')
         form.setFont(font)
@@ -31,14 +31,24 @@ class Ui_Form(object):
                        QtGui.QIcon.Normal, QtGui.QIcon.On)
         form.setWindowIcon(icon)
 
-        self.main_layout = QtWidgets.QVBoxLayout(form)
-        self.main_layout.setObjectName('main_layout')
+        # self.main_layout = QtWidgets.QVBoxLayout(form)
+        # self.main_layout.setObjectName('main_layout')
 
-        # Power type stackedwidget including widgets and layout.
-        self.powertype_groupbox = QtWidgets.QGroupBox(form)
-        self.powertype_groupbox.setObjectName('powertype_groupbox')
-        self.main_layout.addWidget(self.powertype_groupbox)
-        self.powertype_layout = QtWidgets.QVBoxLayout(self.powertype_groupbox)
+        # all widgets and layouts about the tool's control settings
+        self.controlsettings_groupbox = QtWidgets.QGroupBox(form)
+        self.controlsettings_groupbox.setObjectName('controlsettings_groupbox')
+        self.controlsettings_layout = QtWidgets.QVBoxLayout(
+            self.controlsettings_groupbox)
+        self.controlsettings_layout.setObjectName('controlsettings_layout')
+        self.controlsettings_tabwidget = QtWidgets.QTabWidget()
+        self.controlsettings_tabwidget.setObjectName(
+            'controlsettings_tabwidget')
+        self.controlsettings_layout.addWidget(self.controlsettings_tabwidget)
+
+        # Power type widget including child and layout
+        self.powertype_widget = QtWidgets.QWidget()
+        self.powertype_widget.setObjectName('powertype_widget')
+        self.powertype_layout = QtWidgets.QVBoxLayout(self.powertype_widget)
         self.powertype_layout.setObjectName('powertype_layout')
         self.powertype_stackedwidget = QtWidgets.QStackedWidget()
         self.powertype_stackedwidget.setObjectName('powertype_stackedwidget')
@@ -150,13 +160,14 @@ class Ui_Form(object):
         self.powertype_combobox.addItem('')
         self.powertype_combobox.addItem('')
         self.powertype_combobox.addItem('')
+        self.controlsettings_tabwidget.addTab(self.powertype_widget, '')
 
         # Camera Setting's widget including it's child and layout
-        self.camerasetting_groupbox = QtWidgets.QGroupBox(form)
-        self.camerasetting_groupbox.setObjectName('camerasetting_groupbox')
-        self.main_layout.addWidget(self.camerasetting_groupbox)
+        self.camerasettings_widget = QtWidgets.QWidget()
+        self.camerasettings_widget.setObjectName('camerasettings_widget')
+        # self.main_layout.addWidget(self.camerasetting_groupbox)
         self.camerasetting_layout = QtWidgets.QVBoxLayout(
-            self.camerasetting_groupbox)
+            self.camerasettings_widget)
         self.camerasetting_layout.setObjectName('camerasetting_layout')
         self.cameratable_tablewidget = QtWidgets.QTableWidget()
         self.cameratable_tablewidget.setObjectName('cameratable_tablewidget')
@@ -172,7 +183,7 @@ class Ui_Form(object):
         self.camerasetting_layout.addWidget(self.cameratable_tablewidget)
         # Camera buttons using QHBoxLayout
         self.camerabuttons_layout = QtWidgets.QHBoxLayout(
-            self.camerasetting_groupbox)
+            self.camerasettings_widget)
         self.camerabuttons_layout.setObjectName('camerabuttons_layout')
         self.refreshcameratable_pushbutton = QtWidgets.QPushButton()
         self.refreshcameratable_pushbutton.setObjectName(
@@ -185,6 +196,12 @@ class Ui_Form(object):
         self.capturestd_pushbutton.setObjectName('capturestd_pushbutton')
         self.camerabuttons_layout.addWidget(self.capturestd_pushbutton)
         self.camerasetting_layout.addLayout(self.camerabuttons_layout)
+        self.controlsettings_tabwidget.addTab(self.camerasettings_widget, '')
+
+        # Widgets including comport and result settings
+        self.comportsettings_widget = QtWidgets.QWidget()
+        self.comportsettings_widget.setObjectName('comportsettings_widget')
+
 
         self.retranslateUi(form)
         self.powertype_stackedwidget.setCurrentIndex(0)
@@ -196,8 +213,11 @@ class Ui_Form(object):
         _translate = QtCore.QCoreApplication.translate
         form.setWindowTitle(_translate('Form', 'TvSupervisory'))
 
-        self.powertype_groupbox.setTitle(_translate('Form',
-                                                    'PowerType'))
+        self.controlsettings_tabwidget.setTabText(0, _translate('Form',
+                                                                '开关机类型'))
+        self.controlsettings_tabwidget.setTabText(1, _translate('Form',
+                                                                '摄像头配置'))
+
         self.powerbox_count_label.setText(_translate('Form', '开关机次数'))
         self.powerbox_interval_label.setText(_translate('Form', '拍摄时间间隔'))
         self.directpower_count_label.setText(_translate('Form', '开关机次数'))
@@ -213,8 +233,6 @@ class Ui_Form(object):
         self.powertype_combobox.setItemText(1, _translate('Form', '红外直流'))
         self.powertype_combobox.setItemText(2, _translate('Form', 'PRO800交流'))
 
-        self.camerasetting_groupbox.setTitle(_translate('Form',
-                                                        'CameraSetting'))
         item = self.cameratable_tablewidget.horizontalHeaderItem(0)
         item.setText(_translate('Form', 'Tag'))
         item = self.cameratable_tablewidget.horizontalHeaderItem(1)

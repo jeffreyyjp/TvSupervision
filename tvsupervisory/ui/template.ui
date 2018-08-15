@@ -1,0 +1,397 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+       <width>888</width>
+       <height>619</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+      <string>Form</string>
+  </property>
+  <widget class="QGroupBox" name="groupBox">
+   <property name="geometry">
+    <rect>
+        <x>20</x>
+        <y>20</y>
+        <width>391</width>
+        <height>311</height>
+    </rect>
+   </property>
+   <property name="title">
+       <string>配置</string>
+   </property>
+      <widget class="QTabWidget" name="tabWidget">
+          <property name="geometry">
+              <rect>
+                  <x>20</x>
+                  <y>20</y>
+                  <width>361</width>
+                  <height>241</height>
+              </rect>
+          </property>
+          <property name="currentIndex">
+              <number>0</number>
+          </property>
+          <widget class="QWidget" name="tab">
+              <attribute name="title">
+                  <string>开关机类型</string>
+              </attribute>
+              <widget class="QStackedWidget" name="stackedWidget">
+                  <property name="geometry">
+                      <rect>
+                          <x>60</x>
+                          <y>10</y>
+                          <width>229</width>
+                          <height>157</height>
+                      </rect>
+                  </property>
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="power_box">
+       <layout class="QFormLayout" name="formLayout">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>开关机次数</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLineEdit" name="txt_box_num"/>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>拍摄时间间隔</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="txt_box_interval"/>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="direct_power">
+       <layout class="QFormLayout" name="formLayout_2">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>开关机次数</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLineEdit" name="txt_direct_num"/>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>关机时间</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="txt_direct_off_time"/>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_5">
+          <property name="text">
+           <string>电源键值</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QLineEdit" name="txt_direct_power_key"/>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="label_6">
+          <property name="text">
+           <string>拍摄时间间隔</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QLineEdit" name="txt_direct_interval"/>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="pro800_power">
+       <layout class="QFormLayout" name="formLayout_3">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_7">
+          <property name="text">
+           <string>开关机次数</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLineEdit" name="txt_cross_num"/>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_8">
+          <property name="text">
+           <string>继电器地址</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="txt_cross_address"/>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_9">
+          <property name="text">
+           <string>开机键值</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="label_10">
+          <property name="text">
+           <string>关机键值</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QLineEdit" name="txt_cross_off_key"/>
+        </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="label_21">
+          <property name="text">
+           <string>拍摄时间间隔</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1">
+         <widget class="QLineEdit" name="txt_cross_interval"/>
+        </item>
+           <item row="2" column="1">
+               <widget class="QLineEdit" name="txt_cross_on_key"/>
+           </item>
+       </layout>
+      </widget>
+     </widget>
+     <widget class="QComboBox" name="comboBox">
+         <property name="geometry">
+             <rect>
+                 <x>60</x>
+                 <y>180</y>
+                 <width>229</width>
+                 <height>23</height>
+             </rect>
+         </property>
+      <item>
+       <property name="text">
+        <string>电源箱交流</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>红外直流</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>PRO800交流</string>
+       </property>
+      </item>
+     </widget>
+          </widget>
+          <widget class="QWidget" name="tab_2">
+              <attribute name="title">
+                  <string>摄像头配置</string>
+              </attribute>
+              <widget class="QTableWidget" name="camera_table">
+                  <property name="geometry">
+                      <rect>
+                          <x>50</x>
+                          <y>10</y>
+                          <width>231</width>
+                          <height>141</height>
+                      </rect>
+                  </property>
+                  <property name="columnCount">
+                      <number>3</number>
+                  </property>
+                  <column>
+                      <property name="text">
+                          <string>Tag</string>
+                      </property>
+                  </column>
+                  <column>
+                      <property name="text">
+                          <string>Name</string>
+                      </property>
+                  </column>
+                  <column>
+                      <property name="text">
+                          <string>ID</string>
+                      </property>
+                  </column>
+     </widget>
+              <widget class="QPushButton" name="add_camera_btn">
+                  <property name="geometry">
+                      <rect>
+                          <x>127</x>
+                          <y>170</y>
+                          <width>71</width>
+                          <height>25</height>
+                      </rect>
+                  </property>
+      <property name="text">
+          <string>打开摄像头</string>
+      </property>
+     </widget>
+              <widget class="QPushButton" name="capture_std_btn">
+                  <property name="geometry">
+                      <rect>
+                          <x>204</x>
+                          <y>170</y>
+                          <width>71</width>
+                          <height>25</height>
+                      </rect>
+                  </property>
+      <property name="text">
+          <string>拍摄标准图</string>
+      </property>
+     </widget>
+              <widget class="QPushButton" name="refresh_camera_table_btn">
+                  <property name="geometry">
+                      <rect>
+                          <x>50</x>
+                          <y>170</y>
+                          <width>71</width>
+                          <height>25</height>
+                      </rect>
+                  </property>
+                  <property name="text">
+                      <string>刷新列表</string>
+                  </property>
+              </widget>
+          </widget>
+          <widget class="QWidget" name="tab_3">
+              <attribute name="title">
+                  <string>串口配置</string>
+              </attribute>
+              <widget class="QComboBox" name="port_lists_combox">
+                  <property name="geometry">
+                      <rect>
+                          <x>135</x>
+                          <y>101</y>
+                          <width>69</width>
+                          <height>23</height>
+                      </rect>
+                  </property>
+              </widget>
+              <widget class="QPushButton" name="open_port_btn">
+                  <property name="geometry">
+                      <rect>
+                          <x>210</x>
+                          <y>100</y>
+                          <width>75</width>
+                          <height>25</height>
+                      </rect>
+                  </property>
+                  <property name="text">
+                      <string>打开COM</string>
+                  </property>
+              </widget>
+              <widget class="QPushButton" name="refresh_port_btn">
+                  <property name="geometry">
+                      <rect>
+                          <x>54</x>
+                          <y>100</y>
+                          <width>75</width>
+                          <height>25</height>
+                      </rect>
+                  </property>
+                  <property name="text">
+                      <string>刷新</string>
+                  </property>
+              </widget>
+          </widget>
+          <widget class="QWidget" name="tab_4">
+              <attribute name="title">
+                  <string>结果路径配置</string>
+              </attribute>
+              <widget class="QPushButton" name="result_dir_btn">
+                  <property name="geometry">
+                      <rect>
+                          <x>199</x>
+                          <y>89</y>
+                          <width>92</width>
+                          <height>25</height>
+                      </rect>
+                  </property>
+                  <property name="text">
+                      <string>结果路径</string>
+                  </property>
+              </widget>
+              <widget class="QLineEdit" name="result_dir_txt">
+                  <property name="geometry">
+                      <rect>
+                          <x>60</x>
+                          <y>90</y>
+                          <width>133</width>
+                          <height>23</height>
+                      </rect>
+      </property>
+              </widget>
+          </widget>
+      </widget>
+      <widget class="QPushButton" name="pushButton">
+          <property name="geometry">
+              <rect>
+                  <x>40</x>
+                  <y>270</y>
+                  <width>75</width>
+                  <height>23</height>
+              </rect>
+          </property>
+          <property name="text">
+              <string>开始监控</string>
+          </property>
+      </widget>
+      <widget class="QPushButton" name="pushButton_2">
+          <property name="geometry">
+              <rect>
+                  <x>220</x>
+                  <y>270</y>
+                  <width>75</width>
+                  <height>23</height>
+              </rect>
+          </property>
+          <property name="text">
+              <string>查看报告</string>
+          </property>
+      </widget>
+  </widget>
+     <widget class="QTableWidget" name="tableWidget">
+         <property name="geometry">
+             <rect>
+                 <x>460</x>
+                 <y>30</y>
+                 <width>371</width>
+                 <height>301</height>
+             </rect>
+         </property>
+     </widget>
+     <widget class="QTableWidget" name="tableWidget_2">
+         <property name="geometry">
+             <rect>
+                 <x>30</x>
+                 <y>380</y>
+                 <width>801</width>
+                 <height>192</height>
+             </rect>
+         </property>
+  </widget>
+ </widget>
+ <resources/>
+    <connections/>
+</ui>
