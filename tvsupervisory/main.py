@@ -6,21 +6,19 @@ author: Jeffrey
 date: 2018/5/14
 """
 
+
 import sys
 
 # imports
 import serial
+from PyQt5 import QtGui
 from PyQt5 import QtMultimedia
 from PyQt5 import QtMultimediaWidgets
 from PyQt5 import QtWidgets
 
 from tvsupervisory import camera_handler
-from tvsupervisory import camera_window
 from tvsupervisory import comport_handler
 from tvsupervisory import mainwindow
-
-
-# from PyQt5 import QtMultimediaWidgets
 
 
 class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
@@ -39,13 +37,19 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         # self.setMinimumSize(400, 300)
 
         self.refreshcamera_pushbutton.clicked.connect(self.refresh_camera_table)
-        self.opencamera_pushbutton.clicked.connect(self.add_camera)
+        self.opencamera_pushbutton.clicked.connect(self.open_camera)
         self.capturestd_pushbutton.clicked.connect(self.capture_std)
         self.refreshcomport_pushbutton.clicked.connect(self.refresh_port)
         self.opencomport_pushbutton.clicked.connect(self.open_port)
-        # self.start_supervision_btn.clicked.connect(self.start_supervision)
+        self.resultdir_pushbutton.clicked.connect(self.choose_resultdir)
+        self.start_supervision_pushbutton.clicked.connect(
+            self.start_supervision)
+        self.look_result_pushbutton.clicked.connect(self.look_result)
 
         self.init_data()
+
+    def closeEvent(self, a0: QtGui.QCloseEvent):
+        self.QtGui.QCloseEvent.ignore()
 
     def init_data(self):
         """Initialize main window.
@@ -77,34 +81,34 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
             self.cameratable_tablewidget.setItem(i, 1, camera_name)
             self.cameratable_tablewidget.setItem(i, 2, camera_id)
 
-    def add_camera(self):
-        if self.camera_table.rowCount() == 0:
-            QtWidgets.QMessageBox.information(self, 'Camera Info',
-                                              "Can't find any camera device")
+    def open_camera(self):
+        if self.cameratable_tablewidget.rowCount() == 0:
+            QtWidgets.QMessageBox.information(self, '提示', "无可用摄像头")
             return
 
-        # if self.camera_table.is
-
-        selected_row = self.camera_table.currentRow()
+        selected_row = self.cameratable_tablewidget.currentRow()
         if selected_row == -1:
             selected_row = 0
-        selected_camera_tag = self.camera_table.item(selected_row, 0).text()
-        selected_camera_id = self.camera_table.item(selected_row, 2).text()
+        selected_camera_tag = self.cameratable_tablewidget.item(selected_row,
+                                                                0).text()
+        selected_camera_id = self.cameratable_tablewidget.item(selected_row,
+                                                               2).text()
 
         for cam in self.cameras:
             if selected_camera_id == camera_handler.get_camera_name(cam):
                 if cam.state() == QtMultimedia.QCamera.ActiveState:
-                    QtWidgets.QMessageBox.information(self, 'Camera Info',
-                                                      '%s is already opened'
-                                                      % selected_camera_tag)
+                    QtWidgets.QMessageBox.information(self, '提示', '%s已打开' %
+                                                      selected_camera_tag)
                     return
 
-                camera_page = camera_window.CameraPage()
-                self.camera_tab.addTab(camera_page, selected_camera_tag)
                 self.viewfinder = QtMultimediaWidgets.QCameraViewfinder()
                 self.viewfinder.show()
                 cam.setViewfinder(self.viewfinder)
                 cam.start()
+                # self.viewfinder.close.connect(self.close_camera)
+
+    def close_camera(self):
+        print('hello')
 
     def capture_std(self):
         if self.camera_tab.count() == 0:
@@ -123,40 +127,40 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
     def open_port(self):
         port_name = self.comport_combobox.currentText()
         if port_name == '':
-            QtWidgets.QMessageBox.information(self, 'Invalid Port Name',
-                                              'Current selected port name is '
-                                              'none')
+            QtWidgets.QMessageBox.information(self, '提示', '无效的串口名')
             return
 
         self.serial_port.port = port_name  # configure initialized port
         if self.opencomport_pushbutton.text() == '关闭COM':
             self.serial_port.close()
-            QtWidgets.QMessageBox.information(self, 'Close Com Port',
-                                              '{} has been closed '
-                                              'successful'.format(
-                                                  port_name))
+            QtWidgets.QMessageBox.information(self, '提示', '成功关闭{}'.format(
+                port_name))
             self.opencomport_pushbutton.setText('打开COM')
             self.refreshcomport_pushbutton.setEnabled(True)
             self.comport_combobox.setEnabled(True)
         else:
             try:
                 self.serial_port.open()
-                QtWidgets.QMessageBox.information(self, 'Open Successful',
-                                                  '{} has been opened '
-                                                  'successful'.format(
-                                                      port_name))
+                QtWidgets.QMessageBox.information(self, '提示', '成功打开{}'.format(
+                    port_name))
                 self.opencomport_pushbutton.setText('关闭COM')
                 self.refreshcomport_pushbutton.setEnabled(False)
                 self.comport_combobox.setEnabled(False)
             except serial.SerialException as e:
-                QtWidgets.QMessageBox.information(self, 'Open Fail',
+                QtWidgets.QMessageBox.information(self, '提示',
                                                   str(e))
+
+    def choose_resultdir(self):
+        pass
 
     def start_supervision(self):
         if not self.check_conditions():
             return
         else:
             pass
+
+    def look_result(self):
+        pass
 
     def check_conditions(self):
         """Check preconditions is ready.
@@ -178,7 +182,7 @@ def main():
     app = QtWidgets.QApplication(sys.argv)
     main_window = MainWindow()
     main_window.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 
 
 if __name__ == '__main__':

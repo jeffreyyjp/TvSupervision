@@ -27,7 +27,7 @@ class Ui_Form(object):
         form.setFont(font)
 
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap('../../docs/images/tv.jpg'),
+        icon.addPixmap(QtGui.QPixmap('../docs/images/tv.jpg'),
                        QtGui.QIcon.Normal, QtGui.QIcon.On)
         form.setWindowIcon(icon)
 
@@ -198,7 +198,7 @@ class Ui_Form(object):
         self.camerasetting_layout.addLayout(self.camerabuttons_layout)
         self.controlsettings_tabwidget.addTab(self.camerasettings_widget, '')
 
-        # Widgets including comport and result settings
+        # Widgets including comport settings
         self.comportsettings_widget = QtWidgets.QWidget()
         self.comportsettings_widget.setObjectName('comportsettings_widget')
         self.comportsettings_layout = QtWidgets.QHBoxLayout(
@@ -215,6 +215,37 @@ class Ui_Form(object):
         self.comportsettings_layout.addWidget(self.opencomport_pushbutton)
         self.controlsettings_tabwidget.addTab(self.comportsettings_widget, '')
 
+        # Widgets including test result directory setting
+        self.resultdir_widget = QtWidgets.QWidget()
+        self.resultdir_widget.setObjectName('resultdir_widget')
+        self.resultdir_layout = QtWidgets.QHBoxLayout(self.resultdir_widget)
+        self.resultdir_layout.setObjectName('resultdir_layout')
+        self.resultdir_pushbutton = QtWidgets.QPushButton()
+        self.resultdir_pushbutton.setObjectName('resultdir_pushbutton')
+        self.resultdir_layout.addWidget(self.resultdir_pushbutton)
+        self.resultdir_linedit = QtWidgets.QLineEdit()
+        self.resultdir_linedit.setObjectName('resultdir_linedit')
+        self.resultdir_layout.addWidget(self.resultdir_linedit)
+        self.controlsettings_tabwidget.addTab(self.resultdir_widget, '')
+
+        # Widget about start supervisory and look test result
+        self.start_supervisory_layout = QtWidgets.QHBoxLayout(
+            self.controlsettings_groupbox)
+        self.start_supervisory_layout.setObjectName('start_supervisory_layout')
+        self.start_supervision_pushbutton = QtWidgets.QPushButton()
+        self.start_supervisory_layout.addStretch()
+        self.start_supervision_pushbutton.setObjectName(
+            'start_supervision_pushbutton')
+        self.start_supervisory_layout.addWidget(
+            self.start_supervision_pushbutton)
+        self.start_supervisory_layout.addStretch()
+        self.look_result_pushbutton = QtWidgets.QPushButton()
+        self.look_result_pushbutton.setObjectName('look_result_pushbutton')
+        self.start_supervisory_layout.addWidget(self.look_result_pushbutton)
+        self.start_supervisory_layout.addStretch()
+
+        self.controlsettings_layout.addLayout(self.start_supervisory_layout)
+
         self.retranslateUi(form)
         self.powertype_stackedwidget.setCurrentIndex(0)
         self.powertype_combobox.currentIndexChanged.connect(
@@ -229,9 +260,11 @@ class Ui_Form(object):
         self.controlsettings_tabwidget.setTabText(0, _translate('Form',
                                                                 '开关机类型'))
         self.controlsettings_tabwidget.setTabText(1, _translate('Form',
-                                                                '摄像头设置'))
+                                                                '摄像头'))
         self.controlsettings_tabwidget.setTabText(2, _translate('Form',
-                                                                '串口设置'))
+                                                                '串口'))
+        self.controlsettings_tabwidget.setTabText(3, _translate('Form',
+                                                                '结果路径'))
 
         self.powerbox_count_label.setText(_translate('Form', '开关机次数'))
         self.powerbox_interval_label.setText(_translate('Form', '拍摄时间间隔'))
@@ -260,3 +293,7 @@ class Ui_Form(object):
 
         self.refreshcomport_pushbutton.setText(_translate('Form', '刷新'))
         self.opencomport_pushbutton.setText(_translate('Form', '打开COM'))
+
+        self.resultdir_pushbutton.setText(_translate('Form', '选择路径'))
+        self.start_supervision_pushbutton.setText(_translate('Form', '开始监控'))
+        self.look_result_pushbutton.setText(_translate('Form', '查看报告'))
