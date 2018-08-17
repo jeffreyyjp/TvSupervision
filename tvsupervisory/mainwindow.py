@@ -182,8 +182,7 @@ class Ui_Form(object):
         self.cameratable_tablewidget.hideColumn(2)
         self.camerasetting_layout.addWidget(self.cameratable_tablewidget)
         # Camera buttons using QHBoxLayout
-        self.camerabuttons_layout = QtWidgets.QHBoxLayout(
-            self.camerasettings_widget)
+        self.camerabuttons_layout = QtWidgets.QHBoxLayout()
         self.camerabuttons_layout.setObjectName('camerabuttons_layout')
         self.refreshcamera_pushbutton = QtWidgets.QPushButton()
         self.refreshcamera_pushbutton.setObjectName(
@@ -229,8 +228,7 @@ class Ui_Form(object):
         self.controlsettings_tabwidget.addTab(self.resultdir_widget, '')
 
         # Widget about start supervisory and look test result
-        self.start_supervisory_layout = QtWidgets.QHBoxLayout(
-            self.controlsettings_groupbox)
+        self.start_supervisory_layout = QtWidgets.QHBoxLayout()
         self.start_supervisory_layout.setObjectName('start_supervisory_layout')
         self.start_supervision_pushbutton = QtWidgets.QPushButton()
         self.start_supervisory_layout.addStretch()
