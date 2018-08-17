@@ -8,8 +8,8 @@ date: 2018/7/12
 
 import sys
 
-from PyQt5 import QtWidgets
 from PyQt5 import QtMultimedia
+from PyQt5 import QtWidgets
 
 
 def check_camera_availability():

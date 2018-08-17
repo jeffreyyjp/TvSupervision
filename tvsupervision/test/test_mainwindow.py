@@ -10,7 +10,7 @@ import sys
 
 from PyQt5 import QtWidgets
 
-from tvsupervisory.mainwindow import Ui_Form
+from tvsupervision.mainwindow import Ui_Form
 
 
 class Test_UI(QtWidgets.QWidget, Ui_Form):

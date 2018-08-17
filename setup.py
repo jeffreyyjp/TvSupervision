@@ -13,7 +13,7 @@ with open('README.md', 'r') as fh:
 
 
 setuptools.setup(
-    name = 'tvsupervisory',
+    name='tvsupervision',
     version = '0.0.1',
     author = 'Jeffrey Yang',
     author_email = '',

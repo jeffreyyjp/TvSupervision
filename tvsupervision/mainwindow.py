@@ -227,22 +227,22 @@ class Ui_Form(object):
         self.resultdir_layout.addWidget(self.resultdir_linedit)
         self.controlsettings_tabwidget.addTab(self.resultdir_widget, '')
 
-        # Widget about start supervisory and look test result
-        self.start_supervisory_layout = QtWidgets.QHBoxLayout()
-        self.start_supervisory_layout.setObjectName('start_supervisory_layout')
+        # Widget about start supervision and look test result
+        self.start_supervision_layout = QtWidgets.QHBoxLayout()
+        self.start_supervision_layout.setObjectName('start_supervision_layout')
         self.start_supervision_pushbutton = QtWidgets.QPushButton()
-        self.start_supervisory_layout.addStretch()
+        self.start_supervision_layout.addStretch()
         self.start_supervision_pushbutton.setObjectName(
             'start_supervision_pushbutton')
-        self.start_supervisory_layout.addWidget(
+        self.start_supervision_layout.addWidget(
             self.start_supervision_pushbutton)
-        self.start_supervisory_layout.addStretch()
+        self.start_supervision_layout.addStretch()
         self.look_result_pushbutton = QtWidgets.QPushButton()
         self.look_result_pushbutton.setObjectName('look_result_pushbutton')
-        self.start_supervisory_layout.addWidget(self.look_result_pushbutton)
-        self.start_supervisory_layout.addStretch()
+        self.start_supervision_layout.addWidget(self.look_result_pushbutton)
+        self.start_supervision_layout.addStretch()
 
-        self.controlsettings_layout.addLayout(self.start_supervisory_layout)
+        self.controlsettings_layout.addLayout(self.start_supervision_layout)
 
         self.retranslateUi(form)
         self.powertype_stackedwidget.setCurrentIndex(0)
@@ -252,7 +252,7 @@ class Ui_Form(object):
 
     def retranslateUi(self, form):
         _translate = QtCore.QCoreApplication.translate
-        form.setWindowTitle(_translate('Form', 'TvSupervisory'))
+        form.setWindowTitle(_translate('Form', 'Tvsupervision'))
         self.controlsettings_groupbox.setTitle(_translate('Form', '设置'))
 
         self.controlsettings_tabwidget.setTabText(0, _translate('Form',

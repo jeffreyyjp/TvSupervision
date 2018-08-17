@@ -8,7 +8,7 @@ date: 2018/7/5
 
 from PyQt5 import QtWidgets
 
-from tvsupervisory.ui.camerawindow import Ui_Video
+from tvsupervision.ui.camerawindow import Ui_Video
 
 
 class CameraPage(QtWidgets.QWidget, Ui_Video):
