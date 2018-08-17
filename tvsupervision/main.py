@@ -6,10 +6,9 @@ author: Jeffrey
 date: 2018/5/14
 """
 
-
+# imports
 import sys
 
-# imports
 import serial
 from PyQt5 import QtCore
 from PyQt5 import QtMultimedia
