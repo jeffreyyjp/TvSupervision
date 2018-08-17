@@ -1,2 +1,2 @@
-# TvPowerOnOffSupervisory
-python project for tv power supervisory
+# TvSupervision
+python project for tv power supervision
