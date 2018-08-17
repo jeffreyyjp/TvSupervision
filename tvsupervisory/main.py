@@ -11,7 +11,7 @@ import sys
 
 # imports
 import serial
-from PyQt5 import QtGui
+from PyQt5 import QtCore
 from PyQt5 import QtMultimedia
 from PyQt5 import QtMultimediaWidgets
 from PyQt5 import QtWidgets
@@ -48,8 +48,15 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
 
         self.init_data()
 
-    def closeEvent(self, a0: QtGui.QCloseEvent):
-        self.QtGui.QCloseEvent.ignore()
+    def eventFilter(self, obj, event):
+        if obj == self.viewfinder:
+            if event.type() == QtCore.QEvent.Close:
+                print('hello123')
+                return True
+            else:
+                return False
+        else:
+            return False
 
     def init_data(self):
         """Initialize main window.
@@ -65,8 +72,7 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
     def refresh_camera_table(self):
         self.cameratable_tablewidget.clearContents()
         if not camera_handler.check_camera_availability():
-            QtWidgets.QMessageBox.information(self, 'Camera Info',
-                                              "Can't find any camera device")
+            QtWidgets.QMessageBox.information(self, '提示', "无可用摄像头")
             return
 
         self.cameratable_tablewidget.setRowCount(
@@ -102,18 +108,15 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
                     return
 
                 self.viewfinder = QtMultimediaWidgets.QCameraViewfinder()
+                # self.viewfinder.setObjectName()
+                self.viewfinder.installEventFilter(self)
                 self.viewfinder.show()
                 cam.setViewfinder(self.viewfinder)
                 cam.start()
-                # self.viewfinder.close.connect(self.close_camera)
-
-    def close_camera(self):
-        print('hello')
 
     def capture_std(self):
         if self.camera_tab.count() == 0:
-            QtWidgets.QMessageBox.information(self, 'Camera Info',
-                                              'Please open camera device')
+            QtWidgets.QMessageBox.information(self, '提示 ', '')
             return
         current_camera_tag = self.camera_tab.tabText(
             self.camera_tab.currentIndex())
