@@ -35,6 +35,7 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
 
         # self.setMinimumSize(400, 300)
 
+        # All connections between signals and slots are defined here.
         self.refreshcamera_pushbutton.clicked.connect(self.refresh_camera_table)
         self.opencamera_pushbutton.clicked.connect(self.open_camera)
         self.capturestd_pushbutton.clicked.connect(self.capture_std)
@@ -55,7 +56,8 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
             else:
                 return False
         else:
-            return False
+            # pass the event on to the parent class.
+            return MainWindow.eventFilter(self, obj, event)
 
     def init_data(self):
         """Initialize main window.
