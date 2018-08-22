@@ -20,7 +20,7 @@ setuptools.setup(
     description = 'Python tools for Tv power on and off supervisory',
     long_description = long_description,
     long_description_content_type = 'text/markdown',
-    url = 'https://github.com/messi-yang/TvSupervisory',
+    url='https://github.com/messi-yang/TvSupervision',
     packages = setuptools.find_packages(),
     classifiers = {
         "Programming Language :: Python :: 3",

@@ -109,6 +109,7 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
                     return
 
                 self.viewfinder = QtMultimediaWidgets.QCameraViewfinder()
+                self.viewfinder.setWindowTitle(selected_camera_tag)
                 # self.viewfinder.setObjectName()
                 self.viewfinder.installEventFilter(self)
                 self.viewfinder.show()
@@ -182,7 +183,8 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
 
 
 def main():
-    """Module's main entrance, """
+    """Module's main entrance, executed when not as imported."""
+
     app = QtWidgets.QApplication(sys.argv)
     main_window = MainWindow()
     main_window.show()
