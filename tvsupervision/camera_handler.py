@@ -40,6 +40,18 @@ def get_camera_description(camera):
     return QtMultimedia.QCameraInfo(camera).description()
 
 
+class CameraDevice(object):
+
+    def __init__(self, camera_id, camera_name):
+        self.camera_id = camera_id
+        self.camera_name = camera_name
+
+    def is_open(self):
+        pass
+
+
+
+
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
     # print(get_camera_count())
