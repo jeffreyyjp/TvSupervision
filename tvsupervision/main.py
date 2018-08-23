@@ -11,7 +11,6 @@ import sys
 
 import serial
 from PyQt5 import QtCore
-from PyQt5 import QtMultimedia
 from PyQt5 import QtMultimediaWidgets
 from PyQt5 import QtWidgets
 
@@ -28,7 +27,7 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
     def __init__(self):
 
         self.serial_port = serial.Serial()
-        self.cameras = camera_handler.get_all_cameras()
+        self.cameras = camera_handler.Camera.get_cameras()
 
         super(MainWindow, self).__init__()
         self.setupUi(self)
@@ -80,10 +79,8 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
             camera_handler.get_camera_count())
         for i, cam in enumerate(self.cameras):
             tag = QtWidgets.QTableWidgetItem('camera%s' % i)
-            camera_name = QtWidgets.QTableWidgetItem(
-                camera_handler.get_camera_description(cam))
-            camera_id = QtWidgets.QTableWidgetItem(
-                camera_handler.get_camera_name(cam))
+            camera_name = QtWidgets.QTableWidgetItem(cam.name())
+            camera_id = QtWidgets.QTableWidgetItem(cam.id())
             self.cameratable_tablewidget.setItem(i, 0, tag)
             self.cameratable_tablewidget.setItem(i, 1, camera_name)
             self.cameratable_tablewidget.setItem(i, 2, camera_id)
@@ -100,10 +97,9 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
                                                                 0).text()
         selected_camera_id = self.cameratable_tablewidget.item(selected_row,
                                                                2).text()
-
         for cam in self.cameras:
-            if selected_camera_id == camera_handler.get_camera_name(cam):
-                if cam.state() == QtMultimedia.QCamera.ActiveState:
+            if selected_camera_id == cam.id():
+                if cam.is_open():
                     QtWidgets.QMessageBox.information(self, '提示', '%s已打开' %
                                                       selected_camera_tag)
                     return
@@ -111,10 +107,10 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
                 self.viewfinder = QtMultimediaWidgets.QCameraViewfinder()
                 self.viewfinder.setWindowTitle(selected_camera_tag)
                 # self.viewfinder.setObjectName()
-                self.viewfinder.installEventFilter(self)
+                # self.viewfinder.installEventFilter(self)
                 self.viewfinder.show()
                 cam.setViewfinder(self.viewfinder)
-                cam.start()
+                cam.open()
 
     def capture_std(self):
         if self.camera_tab.count() == 0:
