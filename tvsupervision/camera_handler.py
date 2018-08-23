@@ -14,51 +14,44 @@ from PyQt5 import QtWidgets
 
 
 def check_camera_availability():
+    """
+    Check if host machine has any cameras(build-in or usb cameras).
+
+    :return: True for available cameras or False for None
+    """
     cameras_info = QtMultimedia.QCameraInfo.availableCameras()
     if len(cameras_info) > 0:
         return True
     return False
 
 
-def get_camera_count():
-    return len(QtMultimedia.QCameraInfo.availableCameras())
+def get_cameras():
+    """
+    Get all cameras connecting to the host machine.
 
-
-def get_all_cameras():
+    :return: all available cameras using "Camera" Class's instance
+    """
     cameras_info = QtMultimedia.QCameraInfo.availableCameras()
     cameras = []
     for item in cameras_info:
-        cameras.append(QtMultimedia.QCamera(item))
+        cameras.append(Camera(QtMultimedia.QCamera(item)))
     return cameras
 
 
-def get_camera_name(camera):
-    return QtMultimedia.QCameraInfo(camera).deviceName()
-
-
-def get_camera_description(camera):
-    return QtMultimedia.QCameraInfo(camera).description()
-
-
-def is_open(camera):
-    if camera.state() == QtMultimedia.QCamera.ActiveState:
-        return True
-    return False
-
-
 class Camera(QtMultimedia.QCamera):
+    """
+    Encapsulation for QCamera's object.
+
+    Using QCamera for it's attributes and extends for simply getting cameras
+    attributes.
+
+    Attributes:
+        camera: QCamera's instance
+    """
 
     def __init__(self, camera):
         super().__init__()
         self.camera = camera
-
-    @staticmethod
-    def get_cameras():
-        cameras_info = QtMultimedia.QCameraInfo.availableCameras()
-        cameras = []
-        for item in cameras_info:
-            cameras.append(Camera(QtMultimedia.QCamera(item)))
-        return cameras
 
     def name(self):
         camera_info = QtMultimedia.QCameraInfo(self.camera)
@@ -76,8 +69,17 @@ class Camera(QtMultimedia.QCamera):
     def open(self):
         self.camera.start()
 
+    def close(self):
+        self.camera.stop()
+
     def setViewfinder(self, viewfinder):
         self.camera.setViewfinder(viewfinder)
+
+
+class CameraViewFinder(object):
+
+    def __init__(self):
+        pass
 
 
 def main():
@@ -86,6 +88,7 @@ def main():
     for item in cameras:
         print(item.name())
     sys.exit(app.exec())
+
 
 if __name__ == '__main__':
     main()

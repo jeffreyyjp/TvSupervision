@@ -27,7 +27,8 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
     def __init__(self):
 
         self.serial_port = serial.Serial()
-        self.cameras = camera_handler.Camera.get_cameras()
+        self.cameras = camera_handler.get_cameras()
+        self.viewfinder = None
 
         super(MainWindow, self).__init__()
         self.setupUi(self)
@@ -70,13 +71,20 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         # TODO
 
     def refresh_camera_table(self):
+        """
+        Refresh main window's camera table.
+
+        Noting: Once camera is open or supervision starts, Adding new camera
+        devices will cause app crash which means the application doesn't
+        support hot plug.
+        :return: None
+        """
         self.cameratable_tablewidget.clearContents()
         if not camera_handler.check_camera_availability():
             QtWidgets.QMessageBox.information(self, '提示', "无可用摄像头")
             return
 
-        self.cameratable_tablewidget.setRowCount(
-            camera_handler.get_camera_count())
+        self.cameratable_tablewidget.setRowCount(len(self.cameras))
         for i, cam in enumerate(self.cameras):
             tag = QtWidgets.QTableWidgetItem('camera%s' % i)
             camera_name = QtWidgets.QTableWidgetItem(cam.name())
