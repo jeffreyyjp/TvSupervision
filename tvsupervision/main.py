@@ -86,8 +86,6 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
             self.refresh_camera_table()
         self.refresh_port()
         # TODO
-        for cam in self.cameras:
-            cam.get_viewfinder().installEventFilter(self)
 
     def refresh_camera_table(self):
         """
@@ -132,8 +130,8 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
                     return
 
                 cam.get_viewfinder().setWindowTitle(selected_camera_tag)
+                cam.get_viewfinder().installEventFilter(self)
                 cam.show_camera_window()
-                # cam.get_viewfinder().installEventFilter(self)
                 cam.open()
 
     def capture_std(self):
