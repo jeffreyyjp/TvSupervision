@@ -10,6 +10,7 @@ date: 2018/7/12
 import sys
 
 from PyQt5 import QtMultimedia
+from PyQt5 import QtMultimediaWidgets
 from PyQt5 import QtWidgets
 
 
@@ -38,7 +39,7 @@ def get_cameras():
     return cameras
 
 
-class Camera(QtMultimedia.QCamera):
+class Camera(object):
     """
     Encapsulation for QCamera's object.
 
@@ -52,6 +53,7 @@ class Camera(QtMultimedia.QCamera):
     def __init__(self, camera):
         super().__init__()
         self.camera = camera
+        self.camera_viewfinder = QtMultimediaWidgets.QCameraViewfinder()
 
     def name(self):
         camera_info = QtMultimedia.QCameraInfo(self.camera)
@@ -72,19 +74,17 @@ class Camera(QtMultimedia.QCamera):
     def close(self):
         self.camera.stop()
 
-    def setViewfinder(self, viewfinder):
-        self.camera.setViewfinder(viewfinder)
+    def show_camera_window(self):
+        self.camera_viewfinder.show()
+        self.camera.setViewfinder(self.camera_viewfinder)
 
-
-class CameraViewFinder(object):
-
-    def __init__(self):
-        pass
+    def get_viewfinder(self):
+        return self.camera_viewfinder
 
 
 def main():
     app = QtWidgets.QApplication(sys.argv)
-    cameras = Camera.get_cameras()
+    cameras = get_cameras()
     for item in cameras:
         print(item.name())
     sys.exit(app.exec())

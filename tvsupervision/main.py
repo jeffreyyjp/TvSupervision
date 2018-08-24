@@ -28,7 +28,6 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
 
         self.serial_port = serial.Serial()
         self.cameras = camera_handler.get_cameras()
-        self.viewfinder = None
 
         super(MainWindow, self).__init__()
         self.setupUi(self)
@@ -49,15 +48,33 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         self.init_data()
 
     def eventFilter(self, obj, event):
-        if obj == self.viewfinder:
+        """
+        Object obj installed event filter and is watched by main window.
+
+        :param obj: installed event filter and by watched.
+        :param event: obj's event type
+        :return: stop being handled further return True, otherwise return False.
+        """
+        # for item in self.cameras:
+        #     if obj == item.get_viewfinder():
+        #         if event.type() == QtCore.QEvent.Close:
+        #             item.close()
+        #             return True
+        #         else:
+        #             return False
+        #     else:
+        #         # pass the event on to the parent class.
+        #         return MainWindow.eventFilter(self, obj, event)
+        #         # return False
+        if type(obj) == QtMultimediaWidgets.QCameraViewfinder:
             if event.type() == QtCore.QEvent.Close:
-                print('hello123')
-                return True
+                for item in self.cameras:
+                    if obj == item.get_viewfinder():
+                        item.close()
+                        return True
             else:
                 return False
-        else:
-            # pass the event on to the parent class.
-            return MainWindow.eventFilter(self, obj, event)
+        return MainWindow.eventFilter(self, obj, event)
 
     def init_data(self):
         """Initialize main window.
@@ -69,6 +86,8 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
             self.refresh_camera_table()
         self.refresh_port()
         # TODO
+        for cam in self.cameras:
+            cam.get_viewfinder().installEventFilter(self)
 
     def refresh_camera_table(self):
         """
@@ -112,12 +131,9 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
                                                       selected_camera_tag)
                     return
 
-                self.viewfinder = QtMultimediaWidgets.QCameraViewfinder()
-                self.viewfinder.setWindowTitle(selected_camera_tag)
-                # self.viewfinder.setObjectName()
-                # self.viewfinder.installEventFilter(self)
-                self.viewfinder.show()
-                cam.setViewfinder(self.viewfinder)
+                cam.get_viewfinder().setWindowTitle(selected_camera_tag)
+                cam.show_camera_window()
+                # cam.get_viewfinder().installEventFilter(self)
                 cam.open()
 
     def capture_std(self):
