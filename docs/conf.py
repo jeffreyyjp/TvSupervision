@@ -6,4 +6,8 @@ author: Jeffrey
 date: 2018/8/24
 """
 
-# RESULT_DIR =
+# imports
+from PyQt5 import QtCore
+
+BASE_OPEN_DIR = QtCore.QStandardPaths.writableLocation(
+    QtCore.QStandardPaths.DocumentsLocation)

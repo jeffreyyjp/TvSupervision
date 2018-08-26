@@ -7,6 +7,7 @@ date: 2018/5/14
 """
 
 # imports
+# import os
 import sys
 
 import serial
@@ -17,6 +18,7 @@ from PyQt5 import QtWidgets
 from tvsupervision import camera_handler
 from tvsupervision import comport_handler
 from tvsupervision import mainwindow
+from ..docs import conf
 
 
 class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
@@ -174,7 +176,11 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
                                                   str(e))
 
     def choose_resultdir(self):
-        pass
+        result_dir = QtWidgets.QFileDialog.getExistingDirectory(self,
+                                                                '选择结果路径',
+                                                                conf.BASE_OPEN_DIR,
+                                                                QtWidgets.QFileDialog.ShowDirsOnly)
+        self.resultdir_linedit.setText(result_dir)
 
     def start_supervision(self):
         if not self.check_conditions():
@@ -183,6 +189,7 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
             pass
 
     def look_result(self):
+
         pass
 
     def check_conditions(self):
@@ -195,7 +202,7 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
             4. Any config parm is ready for use.
             ...
 
-        :return: bool
+        :return: True for all conditions are ready, False for not.
         """
         pass
 
