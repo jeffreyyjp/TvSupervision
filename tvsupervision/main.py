@@ -15,10 +15,10 @@ from PyQt5 import QtCore
 from PyQt5 import QtMultimediaWidgets
 from PyQt5 import QtWidgets
 
+from docs import conf
 from tvsupervision import camera_handler
 from tvsupervision import comport_handler
 from tvsupervision import mainwindow
-from ..docs import conf
 
 
 class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
@@ -209,7 +209,6 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
 
 def main():
     """Module's main entrance, executed when not as imported."""
-
     app = QtWidgets.QApplication(sys.argv)
     main_window = MainWindow()
     main_window.show()
