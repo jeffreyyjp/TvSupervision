@@ -11,3 +11,5 @@ from PyQt5 import QtCore
 
 BASE_OPEN_DIR = QtCore.QStandardPaths.writableLocation(
     QtCore.QStandardPaths.DocumentsLocation)
+
+STANDARD_IMG = 'standard_img.png'

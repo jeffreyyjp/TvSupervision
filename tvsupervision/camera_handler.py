@@ -52,34 +52,37 @@ class Camera(object):
 
     def __init__(self, camera):
         super().__init__()
-        self.camera = camera
-        self.camera_viewfinder = QtMultimediaWidgets.QCameraViewfinder()
+        self._camera = camera
+        self._camera_viewfinder = QtMultimediaWidgets.QCameraViewfinder()
 
     def name(self):
-        camera_info = QtMultimedia.QCameraInfo(self.camera)
+        camera_info = QtMultimedia.QCameraInfo(self._camera)
         return camera_info.description()
 
     def id(self):
-        camera_info = QtMultimedia.QCameraInfo(self.camera)
+        camera_info = QtMultimedia.QCameraInfo(self._camera)
         return camera_info.deviceName()
 
     def is_open(self):
-        if self.camera.state() == QtMultimedia.QCamera.ActiveState:
+        if self._camera.state() == QtMultimedia.QCamera.ActiveState:
             return True
         return False
 
     def open(self):
-        self.camera.start()
+        self._camera.start()
 
     def close(self):
-        self.camera.stop()
+        self._camera.stop()
 
     def show_camera_window(self):
-        self.camera_viewfinder.show()
-        self.camera.setViewfinder(self.camera_viewfinder)
+        self._camera_viewfinder.show()
+        self._camera.setViewfinder(self._camera_viewfinder)
+
+    def get_camera(self):
+        return self._camera
 
     def get_viewfinder(self):
-        return self.camera_viewfinder
+        return self._camera_viewfinder
 
 
 def main():
