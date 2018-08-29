@@ -21,7 +21,9 @@ from tvsupervision import camera_handler
 from tvsupervision import comport_handler
 from tvsupervision import mainwindow
 
-prompt = QtWidgets.QMessageBox.information
+information = QtWidgets.QMessageBox.information
+warning = QtWidgets.QMessageBox.warning
+critical = QtWidgets.QMessageBox.critical
 
 
 class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
@@ -103,7 +105,7 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         """
         self.cameratable_tablewidget.clearContents()
         if not camera_handler.check_camera_availability():
-            prompt(self, '提示', "无可用摄像头")
+            warning(self, '提示', '无可用摄像头')
             return
 
         self.cameratable_tablewidget.setRowCount(len(self.cameras))
@@ -117,13 +119,13 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
 
     def open_camera(self):
         if self.cameratable_tablewidget.rowCount() == 0:
-            prompt(self, '提示', "无可用摄像头")
+            warning(self, '提示', '无可用摄像头')
             return
 
         for cam in self.cameras:
             if self.get_table_camera_info()[1] == cam.id():
                 if cam.is_open():
-                    prompt(self, '提示',
+                    information(self, '提示',
                            '%s已打开' % self.get_table_camera_info()[0])
                     return
 
@@ -135,13 +137,13 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
 
     def capture_std(self):
         if self.cameratable_tablewidget.rowCount() == 0:
-            prompt(self, '提示', "无可用摄像头")
+            warning(self, '提示', '无可用摄像头')
             return
 
         for cam in self.cameras:
             if self.get_table_camera_info()[1] == cam.id():
                 if not cam.is_open():
-                    prompt(self, '提示',
+                    warning(self, '提示',
                            '请先打开摄像头%s' % self.get_table_camera_info()[0])
                     return
 
@@ -162,25 +164,25 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
     def open_port(self):
         port_name = self.comport_combobox.currentText()
         if port_name == '':
-            prompt(self, '提示', '无效的串口名')
+            critical(self, '提示', '无效的串口名')
             return
 
         self.serial_port.port = port_name  # configure initialized port
         if self.opencomport_pushbutton.text() == '关闭COM':
             self.serial_port.close()
-            prompt(self, '提示', '成功关闭%s' % port_name)
+            information(self, '提示', '成功关闭%s' % port_name)
             self.opencomport_pushbutton.setText('打开COM')
             self.refreshcomport_pushbutton.setEnabled(True)
             self.comport_combobox.setEnabled(True)
         else:
             try:
                 self.serial_port.open()
-                prompt(self, '提示', '成功打开%s' % port_name)
+                information(self, '提示', '成功打开%s' % port_name)
                 self.opencomport_pushbutton.setText('关闭COM')
                 self.refreshcomport_pushbutton.setEnabled(False)
                 self.comport_combobox.setEnabled(False)
             except serial.SerialException as e:
-                prompt(self, '提示', str(e))
+                critical(self, '提示', str(e))
 
     def choose_resultdir(self):
         result_dir = QtWidgets.QFileDialog.getExistingDirectory(self,
