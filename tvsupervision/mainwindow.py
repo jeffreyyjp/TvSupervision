@@ -5,7 +5,6 @@
 author: Jeffrey
 date: 2018/8/13
 """
-
 from PyQt5 import QtCore
 from PyQt5 import QtGui
 from PyQt5 import QtWidgets
@@ -252,7 +251,7 @@ class Ui_Form(object):
 
     def retranslateUi(self, form):
         _translate = QtCore.QCoreApplication.translate
-        form.setWindowTitle(_translate('Form', 'Tvsupervision'))
+        form.setWindowTitle(_translate('Form', 'TvSupervision'))
         self.controlsettings_groupbox.setTitle(_translate('Form', '设置'))
 
         self.controlsettings_tabwidget.setTabText(0, _translate('Form',

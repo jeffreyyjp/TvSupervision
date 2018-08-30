@@ -12,7 +12,6 @@ import sys
 
 import serial
 from PyQt5 import QtCore
-# from PyQt5 import QtMultimedia
 from PyQt5 import QtMultimediaWidgets
 from PyQt5 import QtWidgets
 
@@ -143,8 +142,8 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         for cam in self.cameras:
             if self.get_table_camera_info()[1] == cam.id():
                 if not cam.is_open():
-                    warning(self, '提示',
-                           '请先打开摄像头%s' % self.get_table_camera_info()[0])
+                    warning(self, '提示', '请先打开摄像头%s' %
+                            self.get_table_camera_info()[0])
                     return
 
     def get_table_camera_info(self):
