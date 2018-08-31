@@ -33,7 +33,7 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
     def __init__(self):
 
         self.serial_port = serial.Serial()
-        self.cameras = camera_handler.get_cameras()
+        self.cameras = None
 
         super(MainWindow, self).__init__()
         self.setupUi(self)
@@ -102,6 +102,7 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         support hot plug.
         :return: None
         """
+        self.cameras = camera_handler.get_cameras()
         self.cameratable_tablewidget.clearContents()
         if not camera_handler.check_camera_availability():
             warning(self, '提示', '无可用摄像头')
@@ -124,8 +125,8 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         for cam in self.cameras:
             if self.get_table_camera_info()[1] == cam.id():
                 if cam.is_open():
-                    information(self, '提示',
-                           '%s已打开' % self.get_table_camera_info()[0])
+                    information(self, '提示', '%s已打开' %
+                                self.get_table_camera_info()[0])
                     return
 
                 cam.get_viewfinder().setWindowTitle(
@@ -145,6 +146,8 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
                     warning(self, '提示', '请先打开摄像头%s' %
                             self.get_table_camera_info()[0])
                     return
+                # TODO (need to create img saving location and capture a
+                # standimg)
 
     def get_table_camera_info(self):
         selected_row = self.cameratable_tablewidget.currentRow()
