@@ -30,8 +30,9 @@ class Ui_Form(object):
                        QtGui.QIcon.Normal, QtGui.QIcon.On)
         form.setWindowIcon(icon)
 
-        # self.main_layout = QtWidgets.QVBoxLayout(form)
-        # self.main_layout.setObjectName('main_layout')
+        # Global layout for application
+        self.main_layout = QtWidgets.QGridLayout()
+        self.main_layout.setObjectName('main_layout')
 
         # all widgets and layouts about the tool's control settings
         self.controlsettings_groupbox = QtWidgets.QGroupBox(form)
@@ -243,6 +244,16 @@ class Ui_Form(object):
 
         self.controlsettings_layout.addLayout(self.start_supervision_layout)
 
+        self.main_layout.addWidget(self.controlsettings_groupbox, 0, 0, 1, 1)
+
+        # Display standard image widgets
+        self.standimg_tabwidget = QtWidgets.QTabWidget()
+        self.standimg_tabwidget.setObjectName('standimg_tabwidget')
+
+        self.main_layout.addWidget(self.standimg_tabwidget, 0, 1, 1, 1)
+
+
+        form.setLayout(self.main_layout)
         self.retranslateUi(form)
         self.powertype_stackedwidget.setCurrentIndex(0)
         self.powertype_combobox.currentIndexChanged.connect(

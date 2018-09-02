@@ -7,7 +7,7 @@ date: 2018/5/14
 """
 
 # imports
-# import os
+import os
 import sys
 
 import serial
@@ -123,7 +123,7 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
             return
 
         for cam in self.cameras:
-            if self.get_table_camera_info()[1] == cam.id():
+            if self.get_table_camera_info()[2] == cam.id():
                 if cam.is_open():
                     information(self, '提示', '%s已打开' %
                                 self.get_table_camera_info()[0])
@@ -141,23 +141,32 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
             return
 
         for cam in self.cameras:
-            if self.get_table_camera_info()[1] == cam.id():
+            if self.get_table_camera_info()[2] == cam.id():
                 if not cam.is_open():
                     warning(self, '提示', '请先打开摄像头%s' %
                             self.get_table_camera_info()[0])
                     return
-                # TODO (need to create img saving location and capture a
-                # standimg)
+
+                if not os.path.exists(self.resultdir_linedit.text()):
+                    warning(self, '提示', '结果路径不存在或格式错误')
+                    return
+                file_name = '_'.join([*(self.get_table_camera_info()[0:2]),
+                                      conf.STANDARD_IMG])
+                file_dir = os.path.join(self.resultdir_linedit.text(),
+                                        file_name)
+                cam.capture(file_dir)
 
     def get_table_camera_info(self):
         selected_row = self.cameratable_tablewidget.currentRow()
         if selected_row == -1:
             selected_row = 0
-        selected_camera_tag = self.cameratable_tablewidget.item(selected_row,
-                                                                0).text()
-        selected_camera_id = self.cameratable_tablewidget.item(selected_row,
-                                                               2).text()
-        return [selected_camera_tag, selected_camera_id]
+        selected_camera_tag = self.cameratable_tablewidget.item(
+            selected_row, 0).text()
+        selected_camera_name = self.cameratable_tablewidget.item(
+            selected_row, 1).text()
+        selected_camera_id = self.cameratable_tablewidget.item(
+            selected_row, 2).text()
+        return [selected_camera_tag, selected_camera_name, selected_camera_id]
 
     def refresh_port(self):
         self.comport_combobox.clear()
