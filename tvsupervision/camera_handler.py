@@ -54,7 +54,10 @@ class Camera(object):
         super().__init__()
         self._camera = camera
         self._camera_viewfinder = QtMultimediaWidgets.QCameraViewfinder()
+        self._camera.setCaptureMode(QtMultimedia.QCamera.CaptureStillImage)
         self._image_capture = QtMultimedia.QCameraImageCapture(self._camera)
+        self._image_capture.setCaptureDestination(
+            QtMultimedia.QCameraImageCapture.CaptureToFile)
 
     def name(self):
         camera_info = QtMultimedia.QCameraInfo(self._camera)
@@ -75,8 +78,8 @@ class Camera(object):
     def close(self):
         self._camera.stop()
 
-    def capture(self, file):
-        self._image_capture.capture(file)
+    def capture(self):
+        self._image_capture.capture()
 
     def show_camera_window(self):
         self._camera_viewfinder.show()
@@ -84,6 +87,9 @@ class Camera(object):
 
     def get_camera(self):
         return self._camera
+
+    def get_image_catpture(self):
+        return self._image_capture
 
     def get_viewfinder(self):
         return self._camera_viewfinder

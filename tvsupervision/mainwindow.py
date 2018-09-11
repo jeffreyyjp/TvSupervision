@@ -247,11 +247,13 @@ class Ui_Form(object):
         self.main_layout.addWidget(self.controlsettings_groupbox, 0, 0, 1, 1)
 
         # Display standard image widgets
-        self.standimg_tabwidget = QtWidgets.QTabWidget()
-        self.standimg_tabwidget.setObjectName('standimg_tabwidget')
+        self.standardimg_tabwidget = QtWidgets.QTabWidget()
+        self.standardimg_tabwidget.setObjectName('standardimg_tabwidget')
 
-        self.main_layout.addWidget(self.standimg_tabwidget, 0, 1, 1, 1)
+        self.main_layout.addWidget(self.standardimg_tabwidget, 0, 1, 1, 1)
 
+        self.main_layout.setColumnStretch(0, 1)
+        self.main_layout.setColumnStretch(1, 2)
 
         form.setLayout(self.main_layout)
         self.retranslateUi(form)

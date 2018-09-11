@@ -12,6 +12,7 @@ import sys
 
 import serial
 from PyQt5 import QtCore
+from PyQt5 import QtGui
 from PyQt5 import QtMultimediaWidgets
 from PyQt5 import QtWidgets
 
@@ -33,7 +34,7 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
     def __init__(self):
 
         self.serial_port = serial.Serial()
-        self.cameras = None
+        self.cameras = camera_handler.get_cameras()
 
         super(MainWindow, self).__init__()
         self.setupUi(self)
@@ -52,6 +53,17 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         self.look_result_pushbutton.clicked.connect(self.look_result)
 
         self.init_data()
+
+    def init_data(self):
+        """Initialize main window.
+
+        Get camera, comport, and test result dir info.
+        """
+
+        if camera_handler.check_camera_availability():
+            self.refresh_camera_table()
+        self.refresh_port()
+        # TODO
 
     def eventFilter(self, obj, event):
         """
@@ -82,22 +94,11 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
                 return False
         return MainWindow.eventFilter(self, obj, event)
 
-    def init_data(self):
-        """Initialize main window.
-
-        Get camera, comport, and test result dir info.
-        """
-
-        if camera_handler.check_camera_availability():
-            self.refresh_camera_table()
-        self.refresh_port()
-        # TODO
-
     def refresh_camera_table(self):
         """
         Refresh main window's camera table.
 
-        Noting: Once camera is open or supervision starts, Adding new camera
+        Warning: Once camera is open or supervision starts, Adding new camera
         devices will cause app crash which means the application doesn't
         support hot plug.
         :return: None
@@ -150,13 +151,35 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
                 if not os.path.exists(self.resultdir_linedit.text()):
                     warning(self, '提示', '结果路径不存在或格式错误')
                     return
-                file_name = '_'.join([*(self.get_table_camera_info()[0:2]),
-                                      conf.STANDARD_IMG])
-                file_dir = os.path.join(self.resultdir_linedit.text(),
-                                        file_name)
-                cam.capture(file_dir)
+
+                if cam.get_image_catpture().isReadyForCapture():
+                    cam.get_image_catpture().imageCaptured.connect(
+                        self.display_image)
+                    cam.capture()
+
+    def display_image(self, id, image):
+        tab_text = self.get_table_camera_info()[0]
+        for i in range(self.standardimg_tabwidget.count()):
+            if self.standardimg_tabwidget.tabText(i) == tab_text:
+                self.standardimg_tabwidget.widget(i).setPixmap(
+                    QtGui.QPixmap.fromImage(image))
+                return
+        image_label = QtWidgets.QLabel()
+        image_label.setPixmap(QtGui.QPixmap.fromImage(image))
+        self.standardimg_tabwidget.addTab(image_label, tab_text)
+
+        # Save image to disk
+        file_name = '_'.join([*(self.get_table_camera_info()[0:2]),
+                              conf.STANDARD_IMG])
+        img_file = os.path.join(self.resultdir_linedit.text(), file_name)
+        image.save(img_file)
 
     def get_table_camera_info(self):
+        """
+        Get all information of current camera.
+
+        :return: list of camera's tag, name and id.
+        """
         selected_row = self.cameratable_tablewidget.currentRow()
         if selected_row == -1:
             selected_row = 0
@@ -219,7 +242,7 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
             1. Camera is open.
             2. Comport is open.
             3. Test result dir is valid.
-            4. Any config parm is ready for use.
+            4. Any config parm is ready to use.
             ...
 
         :return: True for all conditions are ready, False for not.
