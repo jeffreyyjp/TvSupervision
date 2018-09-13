@@ -9,6 +9,7 @@ date: 2018/5/14
 # imports
 import os
 import sys
+import time
 
 import serial
 from PyQt5 import QtCore
@@ -62,8 +63,7 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
 
         if camera_handler.check_camera_availability():
             self.refresh_camera_table()
-        self.refresh_port()
-        # TODO
+        self.refresh_port()  # TODO
 
     def eventFilter(self, obj, event):
         """
@@ -126,8 +126,8 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         for cam in self.cameras:
             if self.get_table_camera_info()[2] == cam.id():
                 if cam.is_open():
-                    information(self, '提示', '%s已打开' %
-                                self.get_table_camera_info()[0])
+                    information(self, '提示',
+                                '%s已打开' % self.get_table_camera_info()[0])
                     return
 
                 cam.get_viewfinder().setWindowTitle(
@@ -144,8 +144,8 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         for cam in self.cameras:
             if self.get_table_camera_info()[2] == cam.id():
                 if not cam.is_open():
-                    warning(self, '提示', '请先打开摄像头%s' %
-                            self.get_table_camera_info()[0])
+                    warning(self, '提示',
+                            '请先打开摄像头%s' % self.get_table_camera_info()[0])
                     return
 
                 if not os.path.exists(self.resultdir_linedit.text()):
@@ -169,8 +169,8 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         self.standardimg_tabwidget.addTab(image_label, tab_text)
 
         # Save image to disk
-        file_name = '_'.join([*(self.get_table_camera_info()[0:2]),
-                              conf.STANDARD_IMG])
+        file_name = '_'.join(
+            [*(self.get_table_camera_info()[0:2]), conf.STANDARD_IMG])
         img_file = os.path.join(self.resultdir_linedit.text(), file_name)
         image.save(img_file)
 
@@ -183,12 +183,12 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         selected_row = self.cameratable_tablewidget.currentRow()
         if selected_row == -1:
             selected_row = 0
-        selected_camera_tag = self.cameratable_tablewidget.item(
-            selected_row, 0).text()
-        selected_camera_name = self.cameratable_tablewidget.item(
-            selected_row, 1).text()
-        selected_camera_id = self.cameratable_tablewidget.item(
-            selected_row, 2).text()
+        selected_camera_tag = self.cameratable_tablewidget.item(selected_row,
+                                                                0).text()
+        selected_camera_name = self.cameratable_tablewidget.item(selected_row,
+                                                                 1).text()
+        selected_camera_id = self.cameratable_tablewidget.item(selected_row,
+                                                               2).text()
         return [selected_camera_tag, selected_camera_name, selected_camera_id]
 
     def refresh_port(self):
@@ -219,8 +219,7 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
                 critical(self, '提示', str(e))
 
     def choose_resultdir(self):
-        result_dir = QtWidgets.QFileDialog.getExistingDirectory(self,
-                                                                '选择结果路径',
+        result_dir = QtWidgets.QFileDialog.getExistingDirectory(self, '选择结果路径',
                                                                 conf.BASE_OPEN_DIR,
                                                                 QtWidgets.QFileDialog.ShowDirsOnly)
         self.resultdir_linedit.setText(result_dir)
@@ -228,8 +227,12 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
     def start_supervision(self):
         if not self.check_conditions():
             return
-        else:
-            pass
+        curr_time = time.strftime('%Y-%m-%d_%H-%M-%S', time.localtime())
+        curr_result_dir = os.path.join(self.resultdir_linedit.text(), curr_time)
+        if not os.path.exists(curr_result_dir):
+            os.mkdir(curr_result_dir)
+        # TODO(Jeffrey): finish all other things.
+
 
     def look_result(self):
 
@@ -247,7 +250,27 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
 
         :return: True for all conditions are ready, False for not.
         """
-        pass
+        # Check if any camera has open
+        for cam in self.cameras:
+            if cam.is_open():
+                real_conditions = True
+                break
+        else:
+            critical(self, '提示', '未打开任何摄像头')
+            real_conditions = False
+            return real_conditions
+
+        # Check if com_port is open
+        if not self.serial_port.is_open:
+            real_conditions = False
+            critical(self, '提示', '未打开串口')
+            return real_conditions
+
+        # Check result dir is valid
+        if not os.path.isdir(self.resultdir_linedit.text()):
+            real_conditions = False
+            critical(self, '提示', '未选择测试报告结果路径')
+        return real_conditions
 
 
 def main():
