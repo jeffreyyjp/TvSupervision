@@ -85,10 +85,7 @@ class Camera(object):
         self._camera_viewfinder.show()
         self._camera.setViewfinder(self._camera_viewfinder)
 
-    def get_camera(self):
-        return self._camera
-
-    def get_image_catpture(self):
+    def get_image_capture(self):
         return self._image_capture
 
     def get_viewfinder(self):

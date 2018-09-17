@@ -9,9 +9,9 @@ date: 2018/5/14
 # imports
 import os
 import sys
-import time
 
 import serial
+import time
 from PyQt5 import QtCore
 from PyQt5 import QtGui
 from PyQt5 import QtMultimediaWidgets
@@ -73,17 +73,6 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         :param event: obj's event type
         :return: stop being handled further return True, otherwise return False.
         """
-        # for item in self.cameras:
-        #     if obj == item.get_viewfinder():
-        #         if event.type() == QtCore.QEvent.Close:
-        #             item.close()
-        #             return True
-        #         else:
-        #             return False
-        #     else:
-        #         # pass the event on to the parent class.
-        #         return MainWindow.eventFilter(self, obj, event)
-        #         # return False
         if type(obj) == QtMultimediaWidgets.QCameraViewfinder:
             if event.type() == QtCore.QEvent.Close:
                 for item in self.cameras:
@@ -148,12 +137,8 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
                             '请先打开摄像头%s' % self.get_table_camera_info()[0])
                     return
 
-                if not os.path.exists(self.resultdir_linedit.text()):
-                    warning(self, '提示', '结果路径不存在或格式错误')
-                    return
-
-                if cam.get_image_catpture().isReadyForCapture():
-                    cam.get_image_catpture().imageCaptured.connect(
+                if cam.get_image_capture().isReadyForCapture():
+                    cam.get_image_capture().imageCaptured.connect(
                         self.display_image)
                     cam.capture()
 
@@ -225,13 +210,23 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         self.resultdir_linedit.setText(result_dir)
 
     def start_supervision(self):
+        if self.start_supervision_pushbutton.text() == "开始监控":
+            self.start()
+            return
+        self.pause()
+
+    def start(self):
         if not self.check_conditions():
             return
-        curr_time = time.strftime('%Y-%m-%d_%H-%M-%S', time.localtime())
-        curr_result_dir = os.path.join(self.resultdir_linedit.text(), curr_time)
-        if not os.path.exists(curr_result_dir):
-            os.mkdir(curr_result_dir)
-        # TODO(Jeffrey): finish all other things.
+        if self.powertype_combobox.currentText() == '电源箱交流':
+            pass
+        elif self.powertype_combobox.currentText() == '红外直流':
+            pass
+        else:
+            pass
+
+    def pause(self):
+        pass
 
 
     def look_result(self):
@@ -247,6 +242,9 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
             3. Test result dir is valid.
             4. Any config parm is ready to use.
             ...
+
+        Prepare:
+            1. Initialize current test result dir.
 
         :return: True for all conditions are ready, False for not.
         """
@@ -269,7 +267,17 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         # Check result dir is valid
         if not os.path.isdir(self.resultdir_linedit.text()):
             real_conditions = False
-            critical(self, '提示', '未选择测试报告结果路径')
+            critical(self, '提示', '路径错误')
+
+        # Initialize test result dir
+        curr_time = time.strftime('%Y-%m-%d_%H-%M-%S', time.localtime())
+        curr_result_dir = os.path.join(self.resultdir_linedit.text(), curr_time)
+        if not os.path.exists(curr_result_dir):
+            os.mkdir(curr_result_dir)
+        for cam in self.cameras:
+            if cam.is_open():
+                os.mkdir(os.path.join(curr_result_dir, cam.getdir()))
+
         return real_conditions
 
 
