@@ -7,6 +7,7 @@ date: 2018/7/12
 """
 
 # imports
+import os
 import sys
 
 from PyQt5 import QtMultimedia
@@ -58,6 +59,15 @@ class Camera(object):
         self._image_capture = QtMultimedia.QCameraImageCapture(self._camera)
         self._image_capture.setCaptureDestination(
             QtMultimedia.QCameraImageCapture.CaptureToFile)
+        self._tag = None
+        self._standard_img = None
+        self._result_dir = None
+
+    def set_tag(self, tag):
+        self._tag = tag
+
+    def tag(self):
+        return self._tag
 
     def name(self):
         camera_info = QtMultimedia.QCameraInfo(self._camera)
@@ -91,6 +101,18 @@ class Camera(object):
     def get_viewfinder(self):
         return self._camera_viewfinder
 
+    def set_standard_img(self, image):
+        self._standard_img = image
+
+    def standard_img(self):
+        return self._standard_img
+
+    def set_result_dir(self, basedir):
+        cam_folder_name = '_'.join([self.tag(), self.name()])
+        self._result_dir = os.path.join(basedir, cam_folder_name)
+
+    def result_dir(self):
+        return self._result_dir
 
 def main():
     app = QtWidgets.QApplication(sys.argv)

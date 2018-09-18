@@ -100,7 +100,8 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
 
         self.cameratable_tablewidget.setRowCount(len(self.cameras))
         for i, cam in enumerate(self.cameras):
-            tag = QtWidgets.QTableWidgetItem('camera%s' % i)
+            cam.set_tag('camera%s' % i)
+            tag = QtWidgets.QTableWidgetItem(cam.tag())
             camera_name = QtWidgets.QTableWidgetItem(cam.name())
             camera_id = QtWidgets.QTableWidgetItem(cam.id())
             self.cameratable_tablewidget.setItem(i, 0, tag)
@@ -115,12 +116,10 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         for cam in self.cameras:
             if self.get_table_camera_info()[2] == cam.id():
                 if cam.is_open():
-                    information(self, '提示',
-                                '%s已打开' % self.get_table_camera_info()[0])
+                    information(self, '提示', '%s已打开' % cam.tag())
                     return
 
-                cam.get_viewfinder().setWindowTitle(
-                    self.get_table_camera_info()[0])
+                cam.get_viewfinder().setWindowTitle(cam.tag())
                 cam.get_viewfinder().installEventFilter(self)
                 cam.show_camera_window()
                 cam.open()
@@ -133,8 +132,7 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         for cam in self.cameras:
             if self.get_table_camera_info()[2] == cam.id():
                 if not cam.is_open():
-                    warning(self, '提示',
-                            '请先打开摄像头%s' % self.get_table_camera_info()[0])
+                    warning(self, '提示', '请先打开摄像头%s' % cam.tag())
                     return
 
                 if cam.get_image_capture().isReadyForCapture():
@@ -143,6 +141,12 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
                     cam.capture()
 
     def display_image(self, id, image):
+        # Hold standard img for cam
+        cam_id = self.get_table_camera_info()[2]
+        for cam in self.cameras:
+            if cam_id == cam.id():
+                cam.set_standard_img(image)
+
         tab_text = self.get_table_camera_info()[0]
         for i in range(self.standardimg_tabwidget.count()):
             if self.standardimg_tabwidget.tabText(i) == tab_text:
@@ -152,12 +156,6 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         image_label = QtWidgets.QLabel()
         image_label.setPixmap(QtGui.QPixmap.fromImage(image))
         self.standardimg_tabwidget.addTab(image_label, tab_text)
-
-        # Save image to disk
-        file_name = '_'.join(
-            [*(self.get_table_camera_info()[0:2]), conf.STANDARD_IMG])
-        img_file = os.path.join(self.resultdir_linedit.text(), file_name)
-        image.save(img_file)
 
     def get_table_camera_info(self):
         """
@@ -228,7 +226,6 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
     def pause(self):
         pass
 
-
     def look_result(self):
 
         pass
@@ -251,23 +248,27 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         # Check if any camera has open
         for cam in self.cameras:
             if cam.is_open():
-                real_conditions = True
                 break
         else:
             critical(self, '提示', '未打开任何摄像头')
-            real_conditions = False
-            return real_conditions
+            return False
+
+        # Check if standard image has been captured
+        for cam in self.cameras:
+            if cam.is_open():
+                if cam.standard_img() is None:
+                    critical(self, '提示', '未截取标准图')
+                    return False
 
         # Check if com_port is open
         if not self.serial_port.is_open:
-            real_conditions = False
             critical(self, '提示', '未打开串口')
-            return real_conditions
+            return False
 
         # Check result dir is valid
         if not os.path.isdir(self.resultdir_linedit.text()):
-            real_conditions = False
             critical(self, '提示', '路径错误')
+            return False
 
         # Initialize test result dir
         curr_time = time.strftime('%Y-%m-%d_%H-%M-%S', time.localtime())
@@ -276,9 +277,13 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
             os.mkdir(curr_result_dir)
         for cam in self.cameras:
             if cam.is_open():
-                os.mkdir(os.path.join(curr_result_dir, cam.getdir()))
-
-        return real_conditions
+                cam.set_result_dir(curr_result_dir)
+                if not os.path.exists(cam.result_dir()):
+                    os.mkdir(cam.result_dir())
+                # Save standard img to cam's dir
+                cam.standard_img().save(os.path.join(cam.result_dir(),
+                                                     conf.STANDARD_IMG))
+        return True
 
 
 def main():
