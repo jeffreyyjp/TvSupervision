@@ -20,7 +20,7 @@ class Ui_Form(object):
         :return:
         """
         form.setObjectName('Form')
-        form.resize(640, 480)
+        form.resize(854, 480)
         font = QtGui.QFont()
         font.setFamily('微软雅黑')
         form.setFont(font)

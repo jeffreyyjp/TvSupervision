@@ -9,9 +9,9 @@ date: 2018/5/14
 # imports
 import os
 import sys
+import time
 
 import serial
-import time
 from PyQt5 import QtCore
 from PyQt5 import QtGui
 from PyQt5 import QtMultimediaWidgets
@@ -82,6 +82,25 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
             else:
                 return False
         return MainWindow.eventFilter(self, obj, event)
+
+    # def resizeEvent(self, QResizeEvent):
+    #     """
+    #     Resize standard image when main window is changed and keep image
+    #     resize smoothly.
+    #     :param QResizeEvent:
+    #     :return:
+    #     """
+    #     # print('hello')
+    #     if self.standardimg_tabwidget.count() == 0:
+    #         return
+    #
+    #     curr_label = self.standardimg_tabwidget.currentWidget()
+    #     curr_pixmap = curr_label.pixmap()
+    #     scaled_size = curr_pixmap.size()
+    #     scaled_size.scale(curr_label.size(), QtCore.Qt.KeepAspectRatio)
+    #     # if not curr_pixmap or scaled_size != curr_pixmap.size():
+    #     #     self.update_label_image(curr_label, curr_pixmap)
+    #     self.update_label_image(curr_label, curr_pixmap)
 
     def refresh_camera_table(self):
         """
@@ -154,8 +173,20 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
                     QtGui.QPixmap.fromImage(image))
                 return
         image_label = QtWidgets.QLabel()
-        image_label.setPixmap(QtGui.QPixmap.fromImage(image))
+        image_label.setAlignment(QtCore.Qt.AlignCenter)
+        image_label.setSizePolicy(QtWidgets.QSizePolicy.Expanding,
+                                  QtWidgets.QSizePolicy.Expanding)
+        screen_geometry = QtWidgets.QApplication.desktop().screenGeometry(self)
+        image_label.setMinimumSize(screen_geometry.width() // 8,
+                                   screen_geometry.height() // 8)
         self.standardimg_tabwidget.addTab(image_label, tab_text)
+        self.update_label_image(image_label, QtGui.QPixmap.fromImage(image))
+        # image_label.setPixmap(QtGui.QPixmap.fromImage(image))
+
+    def update_label_image(self, label, pixmap):
+        label.setPixmap(pixmap.scaled(label.size(),
+                                      QtCore.Qt.KeepAspectRatio,
+                                      QtCore.Qt.SmoothTransformation))
 
     def get_table_camera_info(self):
         """
