@@ -62,6 +62,7 @@ class Ui_Form(object):
         self.powerbox_count_label.setObjectName('powerbox_count_label')
         self.powerbox_count_lineedit = QtWidgets.QLineEdit()
         self.powerbox_count_lineedit.setObjectName('powerbox_count_lineedit')
+        self.powerbox_count_lineedit.setPlaceholderText('输入正整数 如：500')
         self.powerbox_layout.addRow(self.powerbox_count_label,
                                     self.powerbox_count_lineedit)
         self.powerbox_interval_label = QtWidgets.QLabel()
@@ -69,6 +70,7 @@ class Ui_Form(object):
         self.powerbox_interval_lineedit = QtWidgets.QLineEdit()
         self.powerbox_interval_lineedit.setObjectName(
             'powerbox_interval_lineedit')
+        self.powerbox_interval_lineedit.setPlaceholderText('间隔和次数 如：15-3')
         self.powerbox_layout.addRow(self.powerbox_interval_label,
                                     self.powerbox_interval_lineedit)
         self.powertype_stackedwidget.addWidget(self.powerbox_widget)
@@ -82,6 +84,7 @@ class Ui_Form(object):
         self.directpower_count_lineedit = QtWidgets.QLineEdit()
         self.directpower_count_lineedit.setObjectName(
             'directpower_count_lineedit')
+        self.directpower_count_lineedit.setPlaceholderText('输入正整数 如：500')
         self.directpower_layout.addRow(self.directpower_count_label,
                                        self.directpower_count_lineedit)
         self.directpower_offtime_label = QtWidgets.QLabel()
@@ -90,6 +93,7 @@ class Ui_Form(object):
         self.directpower_offtime_lineedit = QtWidgets.QLineEdit()
         self.directpower_offtime_lineedit.setObjectName(
             'directpower_offtime_lineedit')
+        self.directpower_offtime_lineedit.setPlaceholderText('输入正整数 如：15')
         self.directpower_layout.addRow(self.directpower_offtime_label,
                                        self.directpower_offtime_lineedit)
         self.directpower_keyvalue_label = QtWidgets.QLabel()
@@ -98,6 +102,7 @@ class Ui_Form(object):
         self.directpower_keyvalue_lineedit = QtWidgets.QLineEdit()
         self.directpower_keyvalue_lineedit.setObjectName(
             'directpower_keyvalue_lineedit')
+        self.directpower_keyvalue_lineedit.setPlaceholderText('AAA7BF0DE3')
         self.directpower_layout.addRow(self.directpower_keyvalue_label,
                                        self.directpower_keyvalue_lineedit)
         self.directpower_interval_label = QtWidgets.QLabel()
@@ -106,6 +111,7 @@ class Ui_Form(object):
         self.directpower_interval_lineedit = QtWidgets.QLineEdit()
         self.directpower_interval_lineedit.setObjectName(
             'pdirectpower_interval_lineedit')
+        self.directpower_interval_lineedit.setPlaceholderText('间隔和次数 如：15-3')
         self.directpower_layout.addRow(self.directpower_interval_label,
                                        self.directpower_interval_lineedit)
         self.powertype_stackedwidget.addWidget(self.directpower_widget)
@@ -119,6 +125,7 @@ class Ui_Form(object):
         self.crosspower_count_lineedit = QtWidgets.QLineEdit()
         self.crosspower_count_lineedit.setObjectName(
             'crosspower_count_lineedit')
+        self.crosspower_count_lineedit.setPlaceholderText('输入正整数 如：500')
         self.crosspower_layout.addRow(self.crosspower_count_label,
                                       self.crosspower_count_lineedit)
         self.crosspower_address_label = QtWidgets.QLabel()
@@ -150,16 +157,15 @@ class Ui_Form(object):
         self.crosspower_interval_lineedit = QtWidgets.QLineEdit()
         self.crosspower_interval_lineedit.setObjectName(
             'crosspower_interval_lineedit')
+        self.crosspower_interval_lineedit.setPlaceholderText('间隔和次数 如：15-3')
         self.crosspower_layout.addRow(self.crosspower_interval_label,
                                       self.crosspower_interval_lineedit)
         self.powertype_stackedwidget.addWidget(self.crosspower_widget)
         # Power type combobox including it's child and layout
         self.powertype_combobox = QtWidgets.QComboBox()
         self.powertype_combobox.setObjectName('powertype_combobox')
+        self.powertype_combobox.addItems([''] * 3)
         self.powertype_layout.addWidget(self.powertype_combobox)
-        self.powertype_combobox.addItem('')
-        self.powertype_combobox.addItem('')
-        self.powertype_combobox.addItem('')
         self.controlsettings_tabwidget.addTab(self.powertype_widget, '')
 
         # Camera Setting's widget including it's child and layout
@@ -198,21 +204,58 @@ class Ui_Form(object):
         self.controlsettings_tabwidget.addTab(self.camerasettings_widget, '')
 
         # Widgets including comport settings
-        self.comportsettings_widget = QtWidgets.QWidget()
-        self.comportsettings_widget.setObjectName('comportsettings_widget')
-        self.comportsettings_layout = QtWidgets.QHBoxLayout(
-            self.comportsettings_widget)
-        self.comportsettings_layout.setObjectName('comportsettings_layout')
-        self.refreshcomport_pushbutton = QtWidgets.QPushButton()
-        self.refreshcomport_pushbutton.setObjectName('refreshport_pushbutton')
-        self.comportsettings_layout.addWidget(self.refreshcomport_pushbutton)
-        self.comport_combobox = QtWidgets.QComboBox()
-        self.comport_combobox.setObjectName('comport_combobox')
-        self.comportsettings_layout.addWidget(self.comport_combobox)
-        self.opencomport_pushbutton = QtWidgets.QPushButton()
-        self.opencomport_pushbutton.setObjectName('opencomport_pushbutton')
-        self.comportsettings_layout.addWidget(self.opencomport_pushbutton)
-        self.controlsettings_tabwidget.addTab(self.comportsettings_widget, '')
+        self.serial_settings_widget = QtWidgets.QWidget()
+        self.serial_settings_widget.setObjectName('serial_settings_widget')
+        self.serial_layout = QtWidgets.QVBoxLayout(self.serial_settings_widget)
+        self.serial_layout.setObjectName('serial_layout')
+        self.serial_config_layout = QtWidgets.QFormLayout()
+        self.serial_config_layout.setObjectName('serial_config_layout')
+        self.serial_port_label = QtWidgets.QLabel()
+        self.serial_port_label.setObjectName('serial_port_label')
+        self.serial_port_combobox = QtWidgets.QComboBox()
+        self.serial_port_combobox.setObjectName('serial_port_combobox')
+        self.serial_config_layout.addRow(self.serial_port_label,
+                                         self.serial_port_combobox)
+        self.serial_baudrate_label = QtWidgets.QLabel()
+        self.serial_baudrate_label.setObjectName('serial_baudrate_label')
+        self.serial_baudrate_combobox = QtWidgets.QComboBox()
+        self.serial_baudrate_combobox.setObjectName('serial_baudrate_combobox')
+        self.serial_baudrate_combobox.addItems([''] * 6)
+        self.serial_config_layout.addRow(self.serial_baudrate_label,
+                                         self.serial_baudrate_combobox)
+        self.serial_databits_label = QtWidgets.QLabel()
+        self.serial_databits_label.setObjectName('serial_databits_label')
+        self.serial_databits_combobox = QtWidgets.QComboBox()
+        self.serial_databits_combobox.setObjectName('serial_databits_combobox')
+        self.serial_databits_combobox.addItems([''] * 4)
+        self.serial_config_layout.addRow(self.serial_databits_label,
+                                         self.serial_databits_combobox)
+        self.serial_parity_label = QtWidgets.QLabel()
+        self.serial_parity_label.setObjectName('serial_pority_label')
+        self.serial_parity_combobox = QtWidgets.QComboBox()
+        self.serial_parity_combobox.setObjectName('serial_pority_combobox')
+        self.serial_parity_combobox.addItems([''] * 5)
+        self.serial_config_layout.addRow(self.serial_parity_label,
+                                         self.serial_parity_combobox)
+        self.serial_stopbits_label = QtWidgets.QLabel()
+        self.serial_stopbits_label.setObjectName('serial_stopbits_label')
+        self.serial_stopbits_combobox = QtWidgets.QComboBox()
+        self.serial_stopbits_combobox.setObjectName('serial_stopbits_combobox')
+        self.serial_stopbits_combobox.addItems([''] * 3)
+        self.serial_config_layout.addRow(self.serial_stopbits_label,
+                                         self.serial_stopbits_combobox)
+        self.serial_layout.addLayout(self.serial_config_layout)
+        self.serial_control_layout = QtWidgets.QHBoxLayout()
+        self.serial_control_layout.setObjectName('serial_control_layout')
+        self.refresh_serial_pushbutton = QtWidgets.QPushButton()
+        self.refresh_serial_pushbutton.setObjectName(
+            'refresh_serial_pushbutton')
+        self.serial_control_layout.addWidget(self.refresh_serial_pushbutton)
+        self.open_serial_pushbutton = QtWidgets.QPushButton()
+        self.open_serial_pushbutton.setObjectName('open_serial_pushbutton')
+        self.serial_control_layout.addWidget(self.open_serial_pushbutton)
+        self.serial_layout.addLayout(self.serial_control_layout)
+        self.controlsettings_tabwidget.addTab(self.serial_settings_widget, '')
 
         # Widgets including test result directory setting
         self.resultdir_widget = QtWidgets.QWidget()
@@ -241,7 +284,6 @@ class Ui_Form(object):
         self.look_result_pushbutton.setObjectName('look_result_pushbutton')
         self.start_supervision_layout.addWidget(self.look_result_pushbutton)
         self.start_supervision_layout.addStretch()
-
         self.controlsettings_layout.addLayout(self.start_supervision_layout)
 
         self.main_layout.addWidget(self.controlsettings_groupbox, 0, 0, 1, 1)
@@ -257,6 +299,7 @@ class Ui_Form(object):
 
         form.setLayout(self.main_layout)
         self.retranslateUi(form)
+        self.pre_check()
         self.powertype_stackedwidget.setCurrentIndex(0)
         self.powertype_combobox.currentIndexChanged.connect(
             self.powertype_stackedwidget.setCurrentIndex)
@@ -301,9 +344,51 @@ class Ui_Form(object):
         self.opencamera_pushbutton.setText(_translate('Form', '打开摄像头'))
         self.capturestd_pushbutton.setText(_translate('Form', '拍摄标准图'))
 
-        self.refreshcomport_pushbutton.setText(_translate('Form', '刷新'))
-        self.opencomport_pushbutton.setText(_translate('Form', '打开COM'))
+        self.serial_port_label.setText(_translate('Form', '串口号'))
+        self.serial_baudrate_label.setText(_translate('Form', '波特率'))
+        self.serial_baudrate_combobox.setItemText(0, _translate('Form', '9600'))
+        self.serial_baudrate_combobox.setItemText(1, _translate('Form',
+                                                                '14400'))
+        self.serial_baudrate_combobox.setItemText(2, _translate('Form',
+                                                                '19200'))
+        self.serial_baudrate_combobox.setItemText(3, _translate('Form',
+                                                                '38400'))
+        self.serial_baudrate_combobox.setItemText(4, _translate('Form',
+                                                                '57600'))
+        self.serial_baudrate_combobox.setItemText(5, _translate('Form',
+                                                                '115200'))
+        self.serial_databits_label.setText(_translate('Form', '数据位'))
+        self.serial_databits_combobox.setItemText(0, _translate('Form', '5'))
+        self.serial_databits_combobox.setItemText(1, _translate('Form', '6'))
+        self.serial_databits_combobox.setItemText(2, _translate('Form', '7'))
+        self.serial_databits_combobox.setItemText(3, _translate('Form', '8'))
+        self.serial_parity_label.setText(_translate('Form', '奇偶校验'))
+        self.serial_parity_combobox.setItemText(0, _translate('Form', 'None'))
+        self.serial_parity_combobox.setItemText(1, _translate('Form', 'Even'))
+        self.serial_parity_combobox.setItemText(2, _translate('Form', 'Odd'))
+        self.serial_parity_combobox.setItemText(3, _translate('Form', 'Mark'))
+        self.serial_parity_combobox.setItemText(4, _translate('Form', 'Space'))
+        self.serial_stopbits_label.setText(_translate('Form', '停止位'))
+        self.serial_stopbits_combobox.setItemText(0, _translate('Form', '1'))
+        self.serial_stopbits_combobox.setItemText(1, _translate('Form', '1.5'))
+        self.serial_stopbits_combobox.setItemText(2, _translate('Form', '2'))
+
+        self.refresh_serial_pushbutton.setText(_translate('Form', '重置/刷新'))
+        self.open_serial_pushbutton.setText(_translate('Form', '打开COM'))
 
         self.resultdir_pushbutton.setText(_translate('Form', '选择路径'))
         self.start_supervision_pushbutton.setText(_translate('Form', '开始监控'))
         self.look_result_pushbutton.setText(_translate('Form', '查看报告'))
+
+    def pre_check(self):
+        reg_exp = QtCore.QRegExp('[1-9][0-9]+$')
+        reg_exp_validator = QtGui.QRegExpValidator(reg_exp)
+        self.powerbox_count_lineedit.setValidator(reg_exp_validator)
+        self.directpower_count_lineedit.setValidator(reg_exp_validator)
+        self.crosspower_count_lineedit.setValidator(reg_exp_validator)
+
+        reg_exp = QtCore.QRegExp('[1-9]+-[1-9]+$')
+        reg_exp_validator = QtGui.QRegExpValidator(reg_exp)
+        self.powerbox_interval_lineedit.setValidator(reg_exp_validator)
+        self.directpower_interval_lineedit.setValidator(reg_exp_validator)
+        self.crosspower_interval_lineedit.setValidator(reg_exp_validator)

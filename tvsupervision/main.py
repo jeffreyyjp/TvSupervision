@@ -46,8 +46,8 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         self.refreshcamera_pushbutton.clicked.connect(self.refresh_camera_table)
         self.opencamera_pushbutton.clicked.connect(self.open_camera)
         self.capturestd_pushbutton.clicked.connect(self.capture_std)
-        self.refreshcomport_pushbutton.clicked.connect(self.refresh_port)
-        self.opencomport_pushbutton.clicked.connect(self.open_port)
+        self.refresh_serial_pushbutton.clicked.connect(self.refresh_serial)
+        self.open_serial_pushbutton.clicked.connect(self.open_port)
         self.resultdir_pushbutton.clicked.connect(self.choose_resultdir)
         self.start_supervision_pushbutton.clicked.connect(
             self.start_supervision)
@@ -63,7 +63,7 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
 
         if camera_handler.check_camera_availability():
             self.refresh_camera_table()
-        self.refresh_port()  # TODO
+        self.refresh_serial()  # TODO
 
     def eventFilter(self, obj, event):
         """
@@ -205,32 +205,45 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
                                                                2).text()
         return [selected_camera_tag, selected_camera_name, selected_camera_id]
 
-    def refresh_port(self):
-        self.comport_combobox.clear()
-        self.comport_combobox.addItems(comport_handler.get_comports_name())
+    def refresh_serial(self):
+        self.serial_port_combobox.clear()
+        self.serial_port_combobox.addItems(comport_handler.get_comports_name())
+        self.serial_baudrate_combobox.setCurrentIndex(0)
+        self.serial_databits_combobox.setCurrentIndex(3)
+        self.serial_parity_combobox.setCurrentIndex(0)
+        self.serial_stopbits_combobox.setCurrentIndex(0)
 
     def open_port(self):
-        port_name = self.comport_combobox.currentText()
-        if port_name == '':
-            critical(self, '提示', '无效的串口名')
-            return
-
-        self.serial_port.port = port_name  # configure initialized port
-        if self.opencomport_pushbutton.text() == '关闭COM':
+        if self.open_serial_pushbutton.text() == '关闭COM':
             self.serial_port.close()
-            information(self, '提示', '成功关闭%s' % port_name)
-            self.opencomport_pushbutton.setText('打开COM')
-            self.refreshcomport_pushbutton.setEnabled(True)
-            self.comport_combobox.setEnabled(True)
+            information(self, '提示', '成功关闭%s' % self.serial_port.port)
+            self.open_serial_pushbutton.setText('打开COM')
+            self.refresh_serial_pushbutton.setEnabled(True)
+            self.serial_port_combobox.setEnabled(True)
         else:
             try:
+                port_name = self.serial_port_combobox.currentText()
+                if port_name == '':
+                    critical(self, '提示', '无效的串口名')
+                    return
+                self.serial_port.port = port_name  # configure initialized port
+                self.serial_port.baudrate = int(
+                    self.serial_baudrate_combobox.currentText())
+                self.serial_port.bytesize = int(
+                    self.serial_databits_combobox.currentText())
+                parity = self.serial_parity_combobox.currentText()
+                self.serial_port.parity = comport_handler.PARITY_NAME[parity]
+                self.serial_port.stopbits = float(
+                    self.serial_stopbits_combobox.currentText())
                 self.serial_port.open()
                 information(self, '提示', '成功打开%s' % port_name)
-                self.opencomport_pushbutton.setText('关闭COM')
-                self.refreshcomport_pushbutton.setEnabled(False)
-                self.comport_combobox.setEnabled(False)
+                self.open_serial_pushbutton.setText('关闭COM')
+                self.refresh_serial_pushbutton.setEnabled(False)
+                # self.serial_port_combobox.setEnabled(False)
             except serial.SerialException as e:
                 critical(self, '提示', str(e))
+            except Exception as e:
+                print(str(e))
 
     def choose_resultdir(self):
         result_dir = QtWidgets.QFileDialog.getExistingDirectory(self, '选择结果路径',
