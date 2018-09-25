@@ -129,10 +129,11 @@ class Ui_Form(object):
         self.crosspower_layout.addRow(self.crosspower_count_label,
                                       self.crosspower_count_lineedit)
         self.crosspower_address_label = QtWidgets.QLabel()
-        self.crosspower_address_label.setObjectName('crosspower_address_labe')
+        self.crosspower_address_label.setObjectName('crosspower_address_label')
         self.crosspower_address_lineedit = QtWidgets.QLineEdit()
         self.crosspower_address_lineedit.setObjectName(
             'crosspower_address_lineedit')
+        self.crosspower_address_lineedit.setPlaceholderText('55010000f2aa')
         self.crosspower_layout.addRow(self.crosspower_address_label,
                                       self.crosspower_address_lineedit)
         self.crosspower_on_keyvalue_label = QtWidgets.QLabel()
@@ -141,6 +142,7 @@ class Ui_Form(object):
         self.crosspower_on_keyvalue_lineedit = QtWidgets.QLineEdit()
         self.crosspower_on_keyvalue_lineedit.setObjectName(
             'crosspower_on_keyvalue_lineedit')
+        self.crosspower_on_keyvalue_lineedit.setPlaceholderText('55010001f0aa')
         self.crosspower_layout.addRow(self.crosspower_on_keyvalue_label,
                                       self.crosspower_on_keyvalue_lineedit)
         self.crosspower_off_keyvalue_label = QtWidgets.QLabel()
@@ -149,6 +151,7 @@ class Ui_Form(object):
         self.crosspower_off_keyvalue_lineedit = QtWidgets.QLineEdit()
         self.crosspower_off_keyvalue_lineedit.setObjectName(
             'crosspower_off_keyvalue_lineedit')
+        self.crosspower_off_keyvalue_lineedit.setPlaceholderText('55010001f1aa')
         self.crosspower_layout.addRow(self.crosspower_off_keyvalue_label,
                                       self.crosspower_off_keyvalue_lineedit)
         self.crosspower_interval_label = QtWidgets.QLabel()

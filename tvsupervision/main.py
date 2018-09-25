@@ -241,7 +241,7 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
                 self.refresh_serial_pushbutton.setEnabled(False)
                 # self.serial_port_combobox.setEnabled(False)
             except serial.SerialException as e:
-                critical(self, '提示', str(e))
+                critical(self, '提示', '无法打开串口，请检查参数配置')
             except Exception as e:
                 print(str(e))
 
@@ -313,6 +313,14 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         if not os.path.isdir(self.resultdir_linedit.text()):
             critical(self, '提示', '路径错误')
             return False
+
+        # Check all parameters have been configured.
+        for item in self.powertype_stackedwidget.currentWidget().children():
+            if type(item) == QtWidgets.QLineEdit:
+                if not item.text():
+                    critical(self, '提示', '配置参数未填写')
+                    return False
+
 
         # Initialize test result dir
         curr_time = time.strftime('%Y-%m-%d_%H-%M-%S', time.localtime())
