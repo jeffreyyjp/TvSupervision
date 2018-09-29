@@ -34,9 +34,7 @@ def get_cameras():
     :return: all available cameras using "Camera" Class's instance
     """
     cameras_info = QtMultimedia.QCameraInfo.availableCameras()
-    cameras = []
-    for item in cameras_info:
-        cameras.append(Camera(QtMultimedia.QCamera(item)))
+    cameras = [Camera(QtMultimedia.QCamera(item)) for item in cameras_info]
     return cameras
 
 
