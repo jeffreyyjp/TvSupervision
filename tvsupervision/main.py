@@ -265,10 +265,18 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         elif self.powertype_combobox.currentText() == '红外直流':
             pass
         else:
-            pass
+            self.start_cross_supervision()
 
     def pause(self):
         pass
+
+    def start_cross_supervision(self):
+        # Set cross_power address
+        self.serial_port.write(self.crosspower_address_lineedit)
+        for i in range(int(self.crosspower_count_lineedit)):
+            self.serial_port.write(self.crosspower_off_keyvalue_lineedit)
+            time.sleep(int(self.crosspower_offtime_lineedit))
+
 
     def look_result(self):
 

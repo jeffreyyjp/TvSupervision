@@ -128,6 +128,14 @@ class Ui_Form(object):
         self.crosspower_count_lineedit.setPlaceholderText('输入正整数 如：500')
         self.crosspower_layout.addRow(self.crosspower_count_label,
                                       self.crosspower_count_lineedit)
+        self.crosspower_offtime_label = QtWidgets.QLabel()
+        self.crosspower_offtime_label.setObjectName('crosspower_offtime_label')
+        self.crosspower_offtime_lineedit = QtWidgets.QLineEdit()
+        self.crosspower_offtime_lineedit.setObjectName(
+            'crosspower_offtime_lineedit')
+        self.crosspower_offtime_lineedit.setPlaceholderText('输入正整数 如：15')
+        self.crosspower_layout.addRow(self.crosspower_offtime_label,
+                                      self.crosspower_offtime_lineedit)
         self.crosspower_address_label = QtWidgets.QLabel()
         self.crosspower_address_label.setObjectName('crosspower_address_label')
         self.crosspower_address_lineedit = QtWidgets.QLineEdit()
@@ -329,6 +337,7 @@ class Ui_Form(object):
         self.directpower_keyvalue_label.setText(_translate('Form', '电源键值'))
         self.directpower_interval_label.setText((_translate('Form', '拍摄时间间隔')))
         self.crosspower_count_label.setText((_translate('Form', '开关机次数')))
+        self.crosspower_offtime_label.setText(_translate('Form', '关机时间'))
         self.crosspower_address_label.setText((_translate('Form', '继电器地址')))
         self.crosspower_on_keyvalue_label.setText((_translate('Form', '开机键值')))
         self.crosspower_off_keyvalue_label.setText((_translate('Form', '关机键值')))
@@ -388,7 +397,9 @@ class Ui_Form(object):
         reg_exp_validator = QtGui.QRegExpValidator(reg_exp)
         self.powerbox_count_lineedit.setValidator(reg_exp_validator)
         self.directpower_count_lineedit.setValidator(reg_exp_validator)
+        self.directpower_offtime_lineedit.setValidator(reg_exp_validator)
         self.crosspower_count_lineedit.setValidator(reg_exp_validator)
+        self.crosspower_offtime_lineedit.setValidator(reg_exp_validator)
 
         reg_exp = QtCore.QRegExp('[1-9]+-[1-9]+$')
         reg_exp_validator = QtGui.QRegExpValidator(reg_exp)
