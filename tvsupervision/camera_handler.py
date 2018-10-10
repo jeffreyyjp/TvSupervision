@@ -76,9 +76,7 @@ class Camera(object):
         return camera_info.deviceName()
 
     def is_open(self):
-        if self._camera.state() == QtMultimedia.QCamera.ActiveState:
-            return True
-        return False
+        return self._camera.state() == QtMultimedia.QCamera.ActiveState
 
     def open(self):
         self._camera.start()

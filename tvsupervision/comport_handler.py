@@ -14,9 +14,7 @@ PARITY_NAME = {'None': 'N', 'Even': 'E', 'Odd': 'O', 'Mark': 'M', 'Space': 'S'}
 
 def get_comports_name():
     com_list = list_ports.comports()
-    port_name_list = []
-    for port_item in com_list:
-        port_name_list.append(port_item[0])
+    port_name_list = [port_item[0] for port_item in com_list]
     return sorted(port_name_list)
 
 
