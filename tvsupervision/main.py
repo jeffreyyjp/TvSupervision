@@ -305,7 +305,17 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
             t.join()
 
     def camera_diff(self, cam):
-        pass
+        interval, times = self.crosspower_interval_lineedit.split('-')
+        threads = []
+        for i in times:
+            interval_time = int(interval) * (i + 1)
+            t = threading.Timer(interval=interval_time,
+                                function=camera_handler.image_diff, args=[cam])
+            threads.append(t)
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
 
     def look_result(self):
 

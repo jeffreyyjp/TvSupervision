@@ -38,6 +38,10 @@ def get_cameras():
     return cameras
 
 
+def image_diff(cam):
+    pass
+
+
 class Camera(object):
     """
     Encapsulation for QCamera's object.
