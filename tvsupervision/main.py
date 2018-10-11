@@ -9,6 +9,7 @@ date: 2018/5/14
 # imports
 import os
 import sys
+import threading
 import time
 
 import serial
@@ -36,6 +37,8 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
 
         self.serial_port = serial.Serial()
         self.cameras = camera_handler.get_cameras()
+        self.current_times = 0
+        self.supervision_started = False
 
         super(MainWindow, self).__init__()
         self.setupUi(self)
@@ -260,6 +263,7 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
     def start(self):
         if not self.check_conditions():
             return
+        self.start_supervision_pushbutton.setText('暂停监控')
         if self.powertype_combobox.currentText() == '电源箱交流':
             pass
         elif self.powertype_combobox.currentText() == '红外直流':
@@ -273,10 +277,35 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
     def start_cross_supervision(self):
         # Set cross_power address
         self.serial_port.write(self.crosspower_address_lineedit)
-        for i in range(int(self.crosspower_count_lineedit)):
-            self.serial_port.write(self.crosspower_off_keyvalue_lineedit)
-            time.sleep(int(self.crosspower_offtime_lineedit))
+        while self.current_times < int(self.crosspower_count_lineedit):
+            if self.supervision_started:
+                # Power off first and wait for some time
+                self.serial_port.write(self.crosspower_off_keyvalue_lineedit)
+                off_time = int(self.crosspower_offtime_lineedit)
+                t = threading.Timer(off_time, self.start_compare)
+                t.start()
+                t.join()
+                self.current_times += 1
 
+    def start_compare(self):
+        """
+        Process all open cameras to diff current frame with standard img.
+        :return:
+        """
+        self.serial_port.write(self.crosspower_on_keyvalue_lineedit)
+        camera_diff_threads = []
+        for cam in self.cameras:
+            if cam.is_open():
+                t = threading.Thread(target=self.camera_diff, args=(cam,))
+                camera_diff_threads.append(t)
+        for t in camera_diff_threads:
+            t.start()
+
+        for t in camera_diff_threads:
+            t.join()
+
+    def camera_diff(self, cam):
+        pass
 
     def look_result(self):
 
