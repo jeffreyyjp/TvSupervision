@@ -162,6 +162,9 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
                         self.display_image)
                     cam.capture()
 
+    def caputre_curr(self):
+        pass
+
     def display_image(self, id, image):
         # Hold standard img for cam
         cam_id = self.get_table_camera_info()[2]
@@ -310,12 +313,17 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         for i in times:
             interval_time = int(interval) * (i + 1)
             t = threading.Timer(interval=interval_time,
-                                function=camera_handler.image_diff, args=[cam])
+                                function=self.image_diff, args=[cam])
             threads.append(t)
         for t in threads:
             t.start()
         for t in threads:
             t.join()
+
+    def image_diff(self, cam):
+        if cam.get_image_capture().isReadyForCapture():
+            cam.get_image_capture().imageCaptured.connect(
+                self.capture_curr[cam])
 
     def look_result(self):
 

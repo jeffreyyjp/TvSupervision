@@ -38,10 +38,6 @@ def get_cameras():
     return cameras
 
 
-def image_diff(cam):
-    pass
-
-
 class Camera(object):
     """
     Encapsulation for QCamera's object.
@@ -63,6 +59,7 @@ class Camera(object):
             QtMultimedia.QCameraImageCapture.CaptureToFile)
         self._tag = None
         self._standard_img = None
+        self._current_frame = None
         self._result_dir = None
 
     def set_tag(self, tag):
@@ -106,6 +103,12 @@ class Camera(object):
 
     def standard_img(self):
         return self._standard_img
+
+    def set_current_frame(self, image):
+        self._current_frame = image
+
+    def current_frame(self):
+        return self._current_frame
 
     def set_result_dir(self, basedir):
         cam_folder_name = '_'.join([self.tag(), self.name()])
