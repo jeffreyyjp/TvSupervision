@@ -22,6 +22,7 @@ from docs import conf
 from tvsupervision import camera_handler
 from tvsupervision import comport_handler
 from tvsupervision import mainwindow
+from tvsupervision import report
 
 information = QtWidgets.QMessageBox.information
 warning = QtWidgets.QMessageBox.warning
@@ -34,11 +35,11 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
     """
 
     def __init__(self):
-
         self.serial_port = serial.Serial()
         self.cameras = camera_handler.get_cameras()
         self.current_times = 0
         self.supervision_started = False
+        self.current_cam = None
 
         super(MainWindow, self).__init__()
         self.setupUi(self)
@@ -160,17 +161,19 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
                 if cam.get_image_capture().isReadyForCapture():
                     cam.get_image_capture().imageCaptured.connect(
                         self.display_image)
+                    self.current_cam = cam
                     cam.capture()
 
-    def caputre_curr(self):
-        pass
+    def caputre_curr(self, id, image):
+        self.current_cam.set_current_frame(image)
 
     def display_image(self, id, image):
         # Hold standard img for cam
-        cam_id = self.get_table_camera_info()[2]
-        for cam in self.cameras:
-            if cam_id == cam.id():
-                cam.set_standard_img(image)
+        # cam_id = self.get_table_camera_info()[2]
+        # for cam in self.cameras:
+        #     if cam_id == cam.id():
+        #         cam.set_standard_img(image)
+        self.current_cam.set_standard_img(image)
 
         tab_text = self.get_table_camera_info()[0]
         for i in range(self.standardimg_tabwidget.count()):
@@ -264,7 +267,7 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         self.pause()
 
     def start(self):
-        if not self.check_conditions():
+        if not self.check_and_prepare():
             return
         self.start_supervision_pushbutton.setText('暂停监控')
         if self.powertype_combobox.currentText() == '电源箱交流':
@@ -323,13 +326,14 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
     def image_diff(self, cam):
         if cam.get_image_capture().isReadyForCapture():
             cam.get_image_capture().imageCaptured.connect(
-                self.capture_curr[cam])
+                self.capture_curr)
+            self.current_cam = cam
+            cam.capture()
 
     def look_result(self):
-
         pass
 
-    def check_conditions(self):
+    def check_and_prepare(self):
         """Check preconditions is ready.
 
         Check:
@@ -382,6 +386,7 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         curr_result_dir = os.path.join(self.resultdir_linedit.text(), curr_time)
         if not os.path.exists(curr_result_dir):
             os.mkdir(curr_result_dir)
+        report.create_summary_report()
         for cam in self.cameras:
             if cam.is_open():
                 cam.set_result_dir(curr_result_dir)
