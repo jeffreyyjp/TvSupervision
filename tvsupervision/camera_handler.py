@@ -7,7 +7,6 @@ date: 2018/7/12
 """
 
 # imports
-import os
 import sys
 
 from PyQt5 import QtMultimedia
@@ -60,7 +59,7 @@ class Camera(object):
         self._tag = None
         self._standard_img = None
         self._current_frame = None
-        self._result_dir = None
+        self._current_image_name = None
 
     def set_tag(self, tag):
         self._tag = tag
@@ -110,12 +109,12 @@ class Camera(object):
     def current_frame(self):
         return self._current_frame
 
-    def set_result_dir(self, basedir):
-        cam_folder_name = '_'.join([self.tag(), self.name()])
-        self._result_dir = os.path.join(basedir, cam_folder_name)
+    def set_current_image_name(self, image_name):
+        self._current_image_name = image_name
 
-    def result_dir(self):
-        return self._result_dir
+    def current_image_name(self):
+        return self._current_image_name
+
 
 def main():
     app = QtWidgets.QApplication(sys.argv)

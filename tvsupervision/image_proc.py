@@ -6,12 +6,17 @@ author: Jeffrey
 date: 2018/10/12
 """
 
+import cv2 as cv
 import numpy as np
 from PyQt5 import QtGui
 
 
 def qimage2cv(image):
-    # Construct height*width and 3 channels matrix, default pixel is 0.
+    """
+    Construct height*width and 3 channels matrix, default pixel is 0.
+    :param image:
+    :return:
+    """
     cv_image = np.zeros((image.height(), image.width(), 3), dtype=np.uint8)
 
     for row in range(image.height()):
@@ -24,3 +29,23 @@ def qimage2cv(image):
             cv_image[row, col, 1] = g
             cv_image[row, col, 2] = r
     return cv_image
+
+
+def diff(standard_image, target_image, diff_rate=0.01):
+    standard_image = cv.imread(standard_image)
+    target_image = cv.imread(target_image)
+    blur_image = cv.GaussianBlur(target_image, (3, 0), 0)
+    diff_image = cv.absdiff(blur_image, standard_image)
+    gray_image = cv.cvtColor(diff_image, cv.COLOR_BGR2GRAY)
+    ret, threshold_image = cv.threshold(gray_image, 50, 255, cv.THRESH_BINARY)
+    kernel = np.ones((3, 3), np.uint8)
+    erode_image = cv.erode(threshold_image, kernel, iterations=3)
+    dilate_image = cv.dilate(erode_image, kernel, iterations=2)
+    # diff_num = dilate_image.height() * dilate_image.width() * diff_rate
+    height = dilate_image.height()
+    width = dilate_image.width()
+    pass
+
+
+def diff_percent(standard_image, target_image):
+    pass
