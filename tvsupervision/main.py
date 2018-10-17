@@ -9,10 +9,10 @@ date: 2018/5/14
 # imports
 import os
 import sys
-
-import serial
 import threading
 import time
+
+import serial
 from PyQt5 import QtCore
 from PyQt5 import QtGui
 from PyQt5 import QtMultimediaWidgets
@@ -28,7 +28,6 @@ from tvsupervision import report
 information = QtWidgets.QMessageBox.information
 warning = QtWidgets.QMessageBox.warning
 critical = QtWidgets.QMessageBox.critical
-summary_report = ''
 
 
 class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
@@ -39,11 +38,11 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
     def __init__(self):
         self.serial_port = serial.Serial()
         self.cameras = camera_handler.get_cameras()
-        self.current_times = 0
+        self.current_snap_times = 0
         self.supervision_started = False
         self.current_cam = None
         self.camera_reports = []
-        self.summary_report_file = None
+        self.summary_report = None
         super(MainWindow, self).__init__()
         self.setupUi(self)
 
@@ -115,7 +114,7 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         Refresh main window's camera table.
 
         Warning: Once camera is open or supervision starts, Adding new camera
-        devices will cause app crash which means the application doesn't
+        devices will cause app crash which means the application don't
         support hot plug.
         :return: None
         """
@@ -169,13 +168,7 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
                 cam.capture()
 
     def capture_curr(self, id, image):
-        current_time = time.strftime('%Y-%m-%d_%H-%M-%S', time.localtime())
         self.current_cam.set_current_frame(image)
-        frame_file = '_'.join([current_time, self.current_times])
-        frame_file = '.'.join([frame_file, conf.IMG_POSTFIX])
-        self.current_cam.set_current_image_name(frame_file)
-        self.current_cam.current_frame().save(os.path.join(
-            self.current_cam.result_dir(), frame_file))
 
     def display_image(self, id, image):
         # Hold standard img for cam
@@ -272,29 +265,44 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         self.pause()
 
     def start(self):
+        self.supervision_started = True
         if not self.check_and_prepare():
             return
         self.start_supervision_pushbutton.setText('暂停监控')
         if self.powertype_combobox.currentText() == '电源箱交流':
             pass
         elif self.powertype_combobox.currentText() == '红外直流':
-            pass
+            self.start_direct_supervision()
         else:
             self.start_cross_supervision()
 
     def pause(self):
-        pass
+        self.supervision_started = False
+        self.start_supervision_pushbutton.setText('开始监控')
+
+    def start_direct_supervision(self):
+        self.start_supervision_pushbutton.setText('暂停监控')
+        while self.current_snap_times < int(self.crosspower_count_lineedit):
+            if not self.supervision_started:
+                return
+                # Power off first and wait for some time
+            self.serial_port.write(self.directpower_keyvalue_lineedit)
+            off_time = int(self.directpower_offtime_lineedit)
+            self.current_snap_times += 1
+            t = threading.Timer(off_time, self.start_compare)
+            t.start()
+            t.join()
 
     def start_cross_supervision(self):
         # Set cross_power address
         self.serial_port.write(self.crosspower_address_lineedit)
-        while self.current_times < int(self.crosspower_count_lineedit):
+        while self.current_snap_times < int(self.crosspower_count_lineedit):
             if not self.supervision_started:
                 return
             # Power off first and wait for some time
             self.serial_port.write(self.crosspower_off_keyvalue_lineedit)
             off_time = int(self.crosspower_offtime_lineedit)
-            self.current_times += 1
+            self.current_snap_times += 1
             t = threading.Timer(off_time, self.start_compare)
             t.start()
             t.join()
@@ -304,7 +312,10 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         Process all open cameras to diff current frame with standard img.
         :return:
         """
-        self.serial_port.write(self.crosspower_on_keyvalue_lineedit)
+        if self.powertype_combobox.currentText() == '红外直流':
+            self.serial_port.write(self.directpower_keyvalue_lineedit)
+        elif self.powertype_combobox.currentText() == 'PRO800交流':
+            self.serial_port.write(self.crosspower_on_keyvalue_lineedit)
         camera_diff_threads = []
         for cam in self.cameras:
             if not cam.is_open():
@@ -313,11 +324,9 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
             camera_diff_threads.append(t)
         for t in camera_diff_threads:
             t.start()
-
         for t in camera_diff_threads:
             t.join()
-        report.update_summary_report(self.summary_report_file,
-                                     self.camera_reports)
+        self.summary_report.update_summary_report()
 
     def camera_diff(self, cam):
         interval, times = self.crosspower_interval_lineedit.split('-')
@@ -335,25 +344,30 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
     def image_diff(self, cam):
         if not cam.get_image_capture().isReadyForCapture():
             return
-
-        cam.get_image_capture().imageCaptured.connect(
-            self.capture_curr)
+        cam.get_image_capture().imageCaptured.connect(self.capture_curr)
         self.current_cam = cam
         cam.capture()
         standard_image = image_proc.qimage2cv(cam.standard_img())
         current_image = image_proc.qimage2cv(cam.current_frame())
-        diff_result = image_proc.diff(standard_image, current_image)
-        diff_percent = image_proc.diff_percent(standard_image, current_image)
+        diff_result, diff_percent = image_proc.diff(standard_image,
+                                                    current_image)
         for camera_report in self.camera_reports:
-            if cam is not camera_report.get_camera():
+            if cam is not camera_report.camera():
                 continue
+            current_time = time.strftime('%Y-%m-%d_%H-%M-%S', time.localtime())
+            camera_report.camera_attr['currentTime'] = current_time
+            current_image_name = '%s_%s.%s' % (current_time,
+                                               self.current_snap_times,
+                                               conf.IMG_POSTFIX)
+            camera_report.camera_attr['snapTimes'] = self.current_snap_times
+            camera_report.camera_attr['imgSrc'] = current_image_name
             camera_report.diff_state = diff_result
             camera_report.diff_percent = diff_percent
             if not diff_result:
                 camera_report.fail_times += 1
-                # TODO(yangjianpeng@hisense.com): need to update camera's report
-                # camera_report.add_update(self.current_times)
+                camera_report.update()
             camera_report.pass_times += 1
+            camera_report.save_current_img()
 
     def look_result(self):
         pass
@@ -407,15 +421,12 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
                 critical(self, '提示', '配置参数未填写')
                 return False
 
-
         # Initialize test result dir
         current_time = time.strftime('%Y-%m-%d_%H-%M-%S', time.localtime())
         curr_result_dir = os.path.join(self.resultdir_linedit.text(),
                                        current_time)
         if not os.path.exists(curr_result_dir):
             os.mkdir(curr_result_dir)
-        self.summary_report_file = os.path.join(curr_result_dir,
-                                                conf.SUMMARY_REPORT)
         for cam in self.cameras:
             if not cam.is_open():
                 continue
@@ -428,8 +439,11 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
             # Initialize each open camera's report
             camera_report.initialize()
             self.camera_reports.append(camera_report)
-        report.initialize_summary_report(self.summary_report_file, current_time,
-                                         self.camera_reports)
+        # Initialize summary report
+        self.summary_report = report.SummaryReport(self.camera_reports)
+        self.summary_report.report_name = os.path.join(
+            curr_result_dir, conf.SUMMARY_REPORT)
+        self.summary_report.initialize_summary_report(current_time)
         return True
 
 

@@ -109,12 +109,6 @@ class Camera(object):
     def current_frame(self):
         return self._current_frame
 
-    def set_current_image_name(self, image_name):
-        self._current_image_name = image_name
-
-    def current_image_name(self):
-        return self._current_image_name
-
 
 def main():
     app = QtWidgets.QApplication(sys.argv)

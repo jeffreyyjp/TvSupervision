@@ -32,20 +32,26 @@ def qimage2cv(image):
 
 
 def diff(standard_image, target_image, diff_rate=0.01):
+    count_num = 0
+    result = True
     standard_image = cv.imread(standard_image)
     target_image = cv.imread(target_image)
-    blur_image = cv.GaussianBlur(target_image, (3, 0), 0)
+    blur_image = cv.GaussianBlur(target_image, (3, 3), 0)
     diff_image = cv.absdiff(blur_image, standard_image)
     gray_image = cv.cvtColor(diff_image, cv.COLOR_BGR2GRAY)
     ret, threshold_image = cv.threshold(gray_image, 50, 255, cv.THRESH_BINARY)
     kernel = np.ones((3, 3), np.uint8)
     erode_image = cv.erode(threshold_image, kernel, iterations=3)
     dilate_image = cv.dilate(erode_image, kernel, iterations=2)
-    # diff_num = dilate_image.height() * dilate_image.width() * diff_rate
-    height = dilate_image.height()
-    width = dilate_image.width()
-    pass
-
-
-def diff_percent(standard_image, target_image):
-    pass
+    rows, columns = dilate_image.shape
+    diff_num = rows * columns * diff_rate
+    for row in range(rows):
+        for col in range(columns):
+            pixel_value = dilate_image[row, col]
+            if pixel_value != 255:
+                continue
+            count_num += 1
+    diff_percent = count_num * 100 / (rows * columns)
+    if count_num > diff_num:
+        result = False
+    return result, diff_percent
