@@ -132,7 +132,7 @@ class CameraReport(object):
 
     def update(self):
         report_doc = dom.parse(self.report_name)
-        results_element = self.report_name.getElementsByTagName('Results')[0]
+        results_element = report_doc.getElementsByTagName('Results')[0]
         result_element = report_doc.createElement('Result')
         results_element.appendChild(result_element)
         for attr in self.camera_attr.keys():
