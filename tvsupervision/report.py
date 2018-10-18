@@ -12,7 +12,12 @@ import xml.dom.minidom as dom
 from docs import conf
 
 
-def reset_xml(file_name):
+def remove_empty(file_name):
+    """
+    This func is used for removing empty lines in xml file.
+    :param file_name:
+    :return: None
+    """
     empty_line = '\t\n'
     result = []
     with open(file_name, 'r') as f:
@@ -70,7 +75,7 @@ class SummaryReport(object):
         with open(self.report_name, 'w') as f:
             report_doc.writexml(f, indent='', addindent='\t', newl='\n',
                                 encoding='UTF-8')
-        reset_xml(self.report_name)
+        remove_empty(self.report_name)
 
 
 class CameraReport(object):
@@ -140,4 +145,4 @@ class CameraReport(object):
         with open(self.report_name, 'w') as f:
             report_doc.writexml(f, indent='', addindent='\t', newl='\n',
                                 encoding='UTF-8')
-        reset_xml(self.report_name)
+        remove_empty(self.report_name)
