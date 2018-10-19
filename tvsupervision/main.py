@@ -24,11 +24,11 @@ from tvsupervision import comport_handler
 from tvsupervision import image_proc
 from tvsupervision import mainwindow
 from tvsupervision import report
+from tvsupervision.logging_handler import logger as log
 
 information = QtWidgets.QMessageBox.information
 warning = QtWidgets.QMessageBox.warning
 critical = QtWidgets.QMessageBox.critical
-
 
 class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
     """
@@ -45,6 +45,8 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         self.summary_report = None
         super(MainWindow, self).__init__()
         self.setupUi(self)
+        log.debug('App starts.')
+        log.debug('Window size: %s * %s.' % (self.width(), self.height()))
 
         # self.setMinimumSize(400, 300)
 
@@ -85,6 +87,7 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
                     if obj != item.get_viewfinder():
                         continue
                     item.close()
+                    log.debug('%s has been closed.' % item.name())
                     return True
             else:
                 return False
@@ -123,8 +126,9 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         if not camera_handler.check_camera_availability():
             warning(self, '提示', '无可用摄像头')
             return
-
-        self.cameratable_tablewidget.setRowCount(len(self.cameras))
+        camera_num = len(self.cameras)
+        self.cameratable_tablewidget.setRowCount(camera_num)
+        log.debug('There are %s cameras available.' % camera_num)
         for i, cam in enumerate(self.cameras):
             cam.set_tag('camera%s' % i)
             tag = QtWidgets.QTableWidgetItem(cam.tag())
@@ -137,6 +141,7 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
     def open_camera(self):
         if self.cameratable_tablewidget.rowCount() == 0:
             warning(self, '提示', '无可用摄像头')
+            log.warning('Not available cameras.')
             return
 
         for cam in self.cameras:
@@ -144,28 +149,28 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
                 continue
             if cam.is_open():
                 information(self, '提示', '%s已打开' % cam.tag())
+                log.warning('%s is already open' % cam.name())
                 return
             cam.get_viewfinder().setWindowTitle(cam.tag())
             cam.get_viewfinder().installEventFilter(self)
             cam.show_camera_window()
             cam.open()
+            log.debug('%s opened successfully.' % cam.name())
 
     def capture_std(self):
-        if self.cameratable_tablewidget.rowCount() == 0:
-            warning(self, '提示', '无可用摄像头')
-            return
-
         for cam in self.cameras:
             if self.get_table_camera_info()[2] != cam.id():
                 continue
             if not cam.is_open():
                 warning(self, '提示', '请先打开摄像头%s' % cam.tag())
+                log.warning('%s not opened yet.' % cam.tag())
                 return
             if cam.get_image_capture().isReadyForCapture():
                 cam.get_image_capture().imageCaptured.connect(
                     self.display_image)
                 self.current_cam = cam
                 cam.capture()
+                log.debug('Start standard image capturing...')
 
     def capture_curr(self, id, image):
         self.current_cam.set_current_frame(image)
@@ -188,6 +193,8 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
                                    screen_geometry.height() // 8)
         self.standardimg_tabwidget.addTab(image_label, tab_text)
         self.update_label_image(image_label, QtGui.QPixmap.fromImage(image))
+        log.debug('Standard image size: %s * %s.' % (image.width(),
+                                                     image.height()))
         # image_label.setPixmap(QtGui.QPixmap.fromImage(image))
 
     def update_label_image(self, label, pixmap):
@@ -224,6 +231,7 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         if self.open_serial_pushbutton.text() == '关闭COM':
             self.serial_port.close()
             information(self, '提示', '成功关闭%s' % self.serial_port.port)
+            log.debug('Close %s successfully.' % self.serial_port.port)
             self.open_serial_pushbutton.setText('打开COM')
             self.refresh_serial_pushbutton.setEnabled(True)
             self.serial_port_combobox.setEnabled(True)
@@ -232,6 +240,7 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
                 port_name = self.serial_port_combobox.currentText()
                 if port_name == '':
                     critical(self, '提示', '无效的串口名')
+                    log.error('Invalid port name.')
                     return
                 self.serial_port.port = port_name  # configure initialized port
                 self.serial_port.baudrate = int(
@@ -244,22 +253,24 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
                     self.serial_stopbits_combobox.currentText())
                 self.serial_port.open()
                 information(self, '提示', '成功打开%s' % port_name)
+                log.debug('Open %s successfully.' % port_name)
                 self.open_serial_pushbutton.setText('关闭COM')
                 self.refresh_serial_pushbutton.setEnabled(False)
                 # self.serial_port_combobox.setEnabled(False)
-            except serial.SerialException as e:
-                critical(self, '提示', '无法打开串口，请检查参数配置')
             except Exception as e:
-                print(str(e))
+                critical(self, '提示', '无法打开串口，请检查参数配置')
+                log.critical("Open port fail, please check configuration.")
 
     def choose_resultdir(self):
         result_dir = QtWidgets.QFileDialog.getExistingDirectory(self, '选择结果路径',
                                                                 conf.BASE_OPEN_DIR,
                                                                 QtWidgets.QFileDialog.ShowDirsOnly)
         self.resultdir_linedit.setText(result_dir)
+        log.debug('Result directory is %s.' % result_dir)
 
     def start_supervision(self):
         if self.start_supervision_pushbutton.text() == "开始监控":
+            log.debug('Start supervision, first check param configuration.')
             self.start()
             return
         self.pause()
@@ -272,12 +283,15 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         if self.powertype_combobox.currentText() == '电源箱交流':
             pass
         elif self.powertype_combobox.currentText() == '红外直流':
+            log.debug('Start direct supervision.')
             self.start_direct_supervision()
         else:
+            log.debug('Start cross supservision.')
             self.start_cross_supervision()
 
     def pause(self):
         self.supervision_started = False
+        log.debug('Pause supervision.')
         self.start_supervision_pushbutton.setText('开始监控')
 
     def start_direct_supervision(self):
@@ -286,8 +300,9 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
             if not self.supervision_started:
                 return
                 # Power off first and wait for some time
-            self.serial_port.write(self.directpower_keyvalue_lineedit)
             off_time = int(self.directpower_offtime_lineedit)
+            log.debug('Power off Tv after %s seconds.' % str(off_time))
+            self.serial_port.write(self.directpower_keyvalue_lineedit)
             self.current_snap_times += 1
             t = threading.Timer(off_time, self.start_compare)
             t.start()
