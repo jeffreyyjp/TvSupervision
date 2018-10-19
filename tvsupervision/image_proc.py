@@ -34,8 +34,10 @@ def qimage2cv(image):
 def diff(standard_image, target_image, diff_rate=0.01):
     count_num = 0
     result = True
-    standard_image = cv.imread(standard_image)
-    target_image = cv.imread(target_image)
+    if type(standard_image) == str:
+        standard_image = cv.imread(standard_image)
+    if type(target_image) == str:
+        target_image = cv.imread(target_image)
     blur_image = cv.GaussianBlur(target_image, (3, 3), 0)
     diff_image = cv.absdiff(blur_image, standard_image)
     gray_image = cv.cvtColor(diff_image, cv.COLOR_BGR2GRAY)

@@ -86,8 +86,8 @@ class CameraReport(object):
     def __init__(self, camera):
         self._camera = camera
         self.camera_name = '_'.join([self._camera.tag(), self._camera.name()])
-        self.result_dir = None
-        self.report_name = os.path.join(self._result_dir, conf.DETAILS_REPORT)
+        self._result_dir = None
+        self.report_name = None
         self.pass_times = 0
         self.fail_times = 0
         self.total_times = self.pass_times + self.fail_times
@@ -107,6 +107,7 @@ class CameraReport(object):
 
     def set_result_dir(self, basedir):
         self._result_dir = os.path.join(basedir, self.camera_name)
+        self.report_name = os.path.join(self._result_dir, conf.DETAILS_REPORT)
 
     def result_dir(self):
         return self._result_dir

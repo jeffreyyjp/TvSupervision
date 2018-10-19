@@ -128,7 +128,10 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
             return
         camera_num = len(self.cameras)
         self.cameratable_tablewidget.setRowCount(camera_num)
-        log.debug('There are %s cameras available.' % camera_num)
+        if camera_num > 1:
+            log.debug('There are %s cameras available.' % camera_num)
+        else:
+            log.debug('There is 1 camera available.')
         for i, cam in enumerate(self.cameras):
             cam.set_tag('camera%s' % i)
             tag = QtWidgets.QTableWidgetItem(cam.tag())
@@ -170,10 +173,13 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
                     self.display_image)
                 self.current_cam = cam
                 cam.capture()
-                log.debug('Start standard image capturing...')
+                log.debug("Start %s's standard image capturing..." % cam.name())
 
     def capture_curr(self, id, image):
         self.current_cam.set_current_frame(image)
+        log.debug("Capturing %s's current frame is finished" %
+                  self.current_cam.name())
+
 
     def display_image(self, id, image):
         # Hold standard img for cam
@@ -193,8 +199,8 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
                                    screen_geometry.height() // 8)
         self.standardimg_tabwidget.addTab(image_label, tab_text)
         self.update_label_image(image_label, QtGui.QPixmap.fromImage(image))
-        log.debug('Standard image size: %s * %s.' % (image.width(),
-                                                     image.height()))
+        log.debug("Capturing %s's standard image is finished." %
+                  self.current_cam.name())
         # image_label.setPixmap(QtGui.QPixmap.fromImage(image))
 
     def update_label_image(self, label, pixmap):
@@ -259,7 +265,7 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
                 # self.serial_port_combobox.setEnabled(False)
             except Exception as e:
                 critical(self, '提示', '无法打开串口，请检查参数配置')
-                log.critical("Open port fail, please check configuration.")
+                log.critical("Open port fail, please check configurations.")
 
     def choose_resultdir(self):
         result_dir = QtWidgets.QFileDialog.getExistingDirectory(self, '选择结果路径',
@@ -270,7 +276,7 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
 
     def start_supervision(self):
         if self.start_supervision_pushbutton.text() == "开始监控":
-            log.debug('Start supervision, first check param configuration.')
+            log.debug('Start supervision, first check param configurations.')
             self.start()
             return
         self.pause()
@@ -286,7 +292,7 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
             log.debug('Start direct supervision.')
             self.start_direct_supervision()
         else:
-            log.debug('Start cross supservision.')
+            log.debug('Start cross supervision.')
             self.start_cross_supervision()
 
     def pause(self):
@@ -296,13 +302,14 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
 
     def start_direct_supervision(self):
         self.start_supervision_pushbutton.setText('暂停监控')
-        while self.current_snap_times < int(self.crosspower_count_lineedit):
+        while self.current_snap_times < int(
+                self.directpower_count_lineedit.text()):
             if not self.supervision_started:
                 return
                 # Power off first and wait for some time
-            off_time = int(self.directpower_offtime_lineedit)
+            off_time = int(self.directpower_offtime_lineedit.text())
             log.debug('Power off Tv after %s seconds.' % str(off_time))
-            self.serial_port.write(self.directpower_keyvalue_lineedit)
+            self.serial_port.write(self.directpower_keyvalue_lineedit.text())
             self.current_snap_times += 1
             t = threading.Timer(off_time, self.start_compare)
             t.start()
@@ -310,13 +317,15 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
 
     def start_cross_supervision(self):
         # Set cross_power address
-        self.serial_port.write(self.crosspower_address_lineedit)
-        while self.current_snap_times < int(self.crosspower_count_lineedit):
+        self.serial_port.write(self.crosspower_address_lineedit.text())
+        while self.current_snap_times < int(
+                self.crosspower_count_lineedit.text()):
             if not self.supervision_started:
                 return
             # Power off first and wait for some time
-            self.serial_port.write(self.crosspower_off_keyvalue_lineedit)
-            off_time = int(self.crosspower_offtime_lineedit)
+            off_time = int(self.crosspower_offtime_lineedit.text())
+            log.debug('Power off Tv after %s seconds.' % str(off_time))
+            self.serial_port.write(self.crosspower_off_keyvalue_lineedit.text())
             self.current_snap_times += 1
             t = threading.Timer(off_time, self.start_compare)
             t.start()
@@ -328,9 +337,13 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         :return:
         """
         if self.powertype_combobox.currentText() == '红外直流':
-            self.serial_port.write(self.directpower_keyvalue_lineedit)
+            power_on_key = self.directpower_keyvalue_lineedit.text()
+            self.serial_port.write(power_on_key)
+            log.debug('Send %s to direct power on.' % power_on_key)
         elif self.powertype_combobox.currentText() == 'PRO800交流':
-            self.serial_port.write(self.crosspower_on_keyvalue_lineedit)
+            power_on_key = self.crosspower_on_keyvalue_lineedit.text()
+            self.serial_port.write(power_on_key)
+            log.debug('Send %s to cross power on' % power_on_key)
         camera_diff_threads = []
         for cam in self.cameras:
             if not cam.is_open():
@@ -344,28 +357,39 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         self.summary_report.update_summary_report()
 
     def camera_diff(self, cam):
-        interval, times = self.crosspower_interval_lineedit.split('-')
+        interval, times = self.crosspower_interval_lineedit.text().split('-')
         threads = []
         for i in times:
             interval_time = int(interval) * (i + 1)
             t = threading.Timer(interval=interval_time,
-                                function=self.image_diff, args=[cam])
+                                function=self.image_diff, args=[cam, i + 1])
             threads.append(t)
         for t in threads:
             t.start()
         for t in threads:
             t.join()
 
-    def image_diff(self, cam):
+    def image_diff(self, cam, count):
+        """
+        Current camera to diff it's standard and current frame.
+
+        :param cam: current camera
+        :param count: current number of difference.
+        :return:
+        """
         if not cam.get_image_capture().isReadyForCapture():
             return
         cam.get_image_capture().imageCaptured.connect(self.capture_curr)
         self.current_cam = cam
         cam.capture()
+        log.debug("Start %s's current frame capturing." % cam.name())
         standard_image = image_proc.qimage2cv(cam.standard_img())
         current_image = image_proc.qimage2cv(cam.current_frame())
         diff_result, diff_percent = image_proc.diff(standard_image,
                                                     current_image)
+        log.debug("%s : %s's %s diff result is %s, different percent is %s" % (
+            str(self.current_snap_times), cam.name(), str(count), diff_result,
+            str(diff_percent)))
         for camera_report in self.camera_reports:
             if cam is not camera_report.camera():
                 continue
@@ -383,6 +407,7 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
                 camera_report.update()
             camera_report.pass_times += 1
             camera_report.save_current_img()
+            log.debug('Save current image to %s' % camera_report.result_dir())
 
     def look_result(self):
         pass
@@ -408,6 +433,7 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
                 break
         else:
             critical(self, '提示', '未打开任何摄像头')
+            log.warning("Haven't opened any cameras.")
             return False
 
         # Check if standard image has been captured
@@ -416,16 +442,19 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
                 continue
             if cam.standard_img() is None:
                 critical(self, '提示', '未截取标准图')
+                log.warning("%s didn't capture standard image." % cam.name())
                 return False
 
         # Check if com_port is open
         if not self.serial_port.is_open:
             critical(self, '提示', '未打开串口')
+            log.warning("Haven't opened cam port.")
             return False
 
         # Check result dir is valid
         if not os.path.isdir(self.resultdir_linedit.text()):
             critical(self, '提示', '路径错误')
+            log.warning('Result base dir is invalid.')
             return False
 
         # Check all parameters have been configured.
@@ -434,6 +463,7 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
                 continue
             if not item.text():
                 critical(self, '提示', '配置参数未填写')
+                log.warning('Configuration params is missing.')
                 return False
 
         # Initialize test result dir
@@ -442,6 +472,7 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
                                        current_time)
         if not os.path.exists(curr_result_dir):
             os.mkdir(curr_result_dir)
+        log.debug('Current result dir is %s' % curr_result_dir)
         for cam in self.cameras:
             if not cam.is_open():
                 continue
@@ -449,6 +480,8 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
             camera_report.set_result_dir(curr_result_dir)
             if not os.path.exists(camera_report.result_dir()):
                 os.mkdir(camera_report.result_dir())
+            log.debug("%s's result dir is %s" % (cam.name(),
+                                                 camera_report.result_dir()))
             # Save standard img to cam's dir
             camera_report.save_standard_img()
             # Initialize each open camera's report
