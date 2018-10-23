@@ -9,10 +9,10 @@ date: 2018/5/14
 # imports
 import os
 import sys
-import threading
-import time
 
 import serial
+import threading
+import time
 from PyQt5 import QtCore
 from PyQt5 import QtGui
 from PyQt5 import QtMultimediaWidgets
@@ -86,8 +86,8 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
                 for item in self.cameras:
                     if obj != item.get_viewfinder():
                         continue
-                    item.close()
                     log.debug('%s has been closed.' % item.name())
+                    item.close()
                     return True
             else:
                 return False
@@ -143,16 +143,16 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
 
     def open_camera(self):
         if self.cameratable_tablewidget.rowCount() == 0:
-            warning(self, '提示', '无可用摄像头')
             log.warning('Not available cameras.')
+            warning(self, '提示', '无可用摄像头')
             return
 
         for cam in self.cameras:
             if self.get_table_camera_info()[2] != cam.id():
                 continue
             if cam.is_open():
-                information(self, '提示', '%s已打开' % cam.tag())
                 log.warning('%s is already open' % cam.name())
+                information(self, '提示', '%s已打开' % cam.tag())
                 return
             cam.get_viewfinder().setWindowTitle(cam.tag())
             cam.get_viewfinder().installEventFilter(self)
@@ -165,8 +165,8 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
             if self.get_table_camera_info()[2] != cam.id():
                 continue
             if not cam.is_open():
-                warning(self, '提示', '请先打开摄像头%s' % cam.tag())
                 log.warning('%s not opened yet.' % cam.tag())
+                warning(self, '提示', '请先打开摄像头%s' % cam.tag())
                 return
             if cam.get_image_capture().isReadyForCapture():
                 cam.get_image_capture().imageCaptured.connect(
@@ -236,8 +236,8 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
     def open_port(self):
         if self.open_serial_pushbutton.text() == '关闭COM':
             self.serial_port.close()
-            information(self, '提示', '成功关闭%s' % self.serial_port.port)
             log.debug('Close %s successfully.' % self.serial_port.port)
+            information(self, '提示', '成功关闭%s' % self.serial_port.port)
             self.open_serial_pushbutton.setText('打开COM')
             self.refresh_serial_pushbutton.setEnabled(True)
             self.serial_port_combobox.setEnabled(True)
@@ -245,8 +245,8 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
             try:
                 port_name = self.serial_port_combobox.currentText()
                 if port_name == '':
-                    critical(self, '提示', '无效的串口名')
                     log.error('Invalid port name.')
+                    critical(self, '提示', '无效的串口名')
                     return
                 self.serial_port.port = port_name  # configure initialized port
                 self.serial_port.baudrate = int(
@@ -258,14 +258,14 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
                 self.serial_port.stopbits = float(
                     self.serial_stopbits_combobox.currentText())
                 self.serial_port.open()
-                information(self, '提示', '成功打开%s' % port_name)
                 log.debug('Open %s successfully.' % port_name)
+                information(self, '提示', '成功打开%s' % port_name)
                 self.open_serial_pushbutton.setText('关闭COM')
                 self.refresh_serial_pushbutton.setEnabled(False)
                 # self.serial_port_combobox.setEnabled(False)
             except Exception as e:
-                critical(self, '提示', '无法打开串口，请检查参数配置')
                 log.critical("Open port fail, please check configurations.")
+                critical(self, '提示', '无法打开串口，请检查参数配置')
 
     def choose_resultdir(self):
         result_dir = QtWidgets.QFileDialog.getExistingDirectory(self, '选择结果路径',
@@ -338,12 +338,12 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         """
         if self.powertype_combobox.currentText() == '红外直流':
             power_on_key = self.directpower_keyvalue_lineedit.text()
-            self.serial_port.write(power_on_key)
             log.debug('Send %s to direct power on.' % power_on_key)
+            self.serial_port.write(power_on_key)
         elif self.powertype_combobox.currentText() == 'PRO800交流':
             power_on_key = self.crosspower_on_keyvalue_lineedit.text()
-            self.serial_port.write(power_on_key)
             log.debug('Send %s to cross power on' % power_on_key)
+            self.serial_port.write(power_on_key)
         camera_diff_threads = []
         for cam in self.cameras:
             if not cam.is_open():
@@ -381,8 +381,8 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
             return
         cam.get_image_capture().imageCaptured.connect(self.capture_curr)
         self.current_cam = cam
-        cam.capture()
         log.debug("Start %s's current frame capturing." % cam.name())
+        cam.capture()
         standard_image = image_proc.qimage2cv(cam.standard_img())
         current_image = image_proc.qimage2cv(cam.current_frame())
         diff_result, diff_percent = image_proc.diff(standard_image,
@@ -406,8 +406,8 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
                 camera_report.fail_times += 1
                 camera_report.update()
             camera_report.pass_times += 1
-            camera_report.save_current_img()
             log.debug('Save current image to %s' % camera_report.result_dir())
+            camera_report.save_current_img()
 
     def look_result(self):
         pass
@@ -432,8 +432,8 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
             if cam.is_open():
                 break
         else:
-            critical(self, '提示', '未打开任何摄像头')
             log.warning("Haven't opened any cameras.")
+            critical(self, '提示', '未打开任何摄像头')
             return False
 
         # Check if standard image has been captured
@@ -441,20 +441,20 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
             if not cam.is_open():
                 continue
             if cam.standard_img() is None:
-                critical(self, '提示', '未截取标准图')
                 log.warning("%s didn't capture standard image." % cam.name())
+                critical(self, '提示', '未截取标准图')
                 return False
 
         # Check if com_port is open
         if not self.serial_port.is_open:
-            critical(self, '提示', '未打开串口')
             log.warning("Haven't opened cam port.")
+            critical(self, '提示', '未打开串口')
             return False
 
         # Check result dir is valid
         if not os.path.isdir(self.resultdir_linedit.text()):
-            critical(self, '提示', '路径错误')
             log.warning('Result base dir is invalid.')
+            critical(self, '提示', '路径错误')
             return False
 
         # Check all parameters have been configured.
@@ -462,8 +462,8 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
             if type(item) != QtWidgets.QLineEdit:
                 continue
             if not item.text():
-                critical(self, '提示', '配置参数未填写')
                 log.warning('Configuration params is missing.')
+                critical(self, '提示', '配置参数未填写')
                 return False
 
         # Initialize test result dir
