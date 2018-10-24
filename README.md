@@ -1,8 +1,7 @@
 # TvSupervision
 
 **TvSupervision** is a software system for checking if Tv works as it's 
-normal way when it is opened from closed status.
-
+normal way when it is opened from closed status.<br/>
 List below are some standard or third libs which are used for the system.
 
 **Standard Lib**
