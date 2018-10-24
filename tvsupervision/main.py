@@ -9,10 +9,11 @@ date: 2018/5/14
 # imports
 import os
 import sys
-
-import serial
 import threading
 import time
+import webbrowser
+
+import serial
 from PyQt5 import QtCore
 from PyQt5 import QtGui
 from PyQt5 import QtMultimediaWidgets
@@ -410,7 +411,12 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
             camera_report.save_current_img()
 
     def look_result(self):
-        pass
+        if self.summary_report is None:
+            log.warning("Test result doesn't exist.")
+            warning(self, '提示', '测试结果未生成.')
+            return
+        ie = webbrowser.get(webbrowser.iexplore)
+        ie.open(self.summary_report.report_name)
 
     def check_and_prepare(self):
         """Check preconditions is ready.
