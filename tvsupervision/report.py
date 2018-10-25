@@ -11,6 +11,8 @@ import xml.dom.minidom as dom
 
 from docs import conf
 
+__all__ = ['SummaryReport', 'CameraReport']
+
 
 def remove_empty(file_name):
     """

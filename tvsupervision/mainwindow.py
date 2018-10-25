@@ -54,26 +54,26 @@ class Ui_Form(object):
         self.powertype_stackedwidget.setObjectName('powertype_stackedwidget')
         self.powertype_layout.addWidget(self.powertype_stackedwidget)
         # Power box widget including it's child widget and layout
-        self.powerbox_widget = QtWidgets.QWidget()
-        self.powerbox_widget.setObjectName('powerbox_widget')
-        self.powerbox_layout = QtWidgets.QFormLayout(self.powerbox_widget)
-        self.powerbox_layout.setObjectName('powerbox_layout')
-        self.powerbox_count_label = QtWidgets.QLabel()
-        self.powerbox_count_label.setObjectName('powerbox_count_label')
-        self.powerbox_count_lineedit = QtWidgets.QLineEdit()
-        self.powerbox_count_lineedit.setObjectName('powerbox_count_lineedit')
-        self.powerbox_count_lineedit.setPlaceholderText('输入正整数 如：500')
-        self.powerbox_layout.addRow(self.powerbox_count_label,
-                                    self.powerbox_count_lineedit)
-        self.powerbox_interval_label = QtWidgets.QLabel()
-        self.powerbox_interval_label.setObjectName('powerbox_interval_label')
-        self.powerbox_interval_lineedit = QtWidgets.QLineEdit()
-        self.powerbox_interval_lineedit.setObjectName(
-            'powerbox_interval_lineedit')
-        self.powerbox_interval_lineedit.setPlaceholderText('间隔和次数 如：15-3')
-        self.powerbox_layout.addRow(self.powerbox_interval_label,
-                                    self.powerbox_interval_lineedit)
-        self.powertype_stackedwidget.addWidget(self.powerbox_widget)
+        # self.powerbox_widget = QtWidgets.QWidget()
+        # self.powerbox_widget.setObjectName('powerbox_widget')
+        # self.powerbox_layout = QtWidgets.QFormLayout(self.powerbox_widget)
+        # self.powerbox_layout.setObjectName('powerbox_layout')
+        # self.powerbox_count_label = QtWidgets.QLabel()
+        # self.powerbox_count_label.setObjectName('powerbox_count_label')
+        # self.powerbox_count_lineedit = QtWidgets.QLineEdit()
+        # self.powerbox_count_lineedit.setObjectName('powerbox_count_lineedit')
+        # self.powerbox_count_lineedit.setPlaceholderText('输入正整数 如：500')
+        # self.powerbox_layout.addRow(self.powerbox_count_label,
+        #                             self.powerbox_count_lineedit)
+        # self.powerbox_interval_label = QtWidgets.QLabel()
+        # self.powerbox_interval_label.setObjectName('powerbox_interval_label')
+        # self.powerbox_interval_lineedit = QtWidgets.QLineEdit()
+        # self.powerbox_interval_lineedit.setObjectName(
+        #     'powerbox_interval_lineedit')
+        # self.powerbox_interval_lineedit.setPlaceholderText('间隔和次数 如：15-3')
+        # self.powerbox_layout.addRow(self.powerbox_interval_label,
+        #                             self.powerbox_interval_lineedit)
+        # self.powertype_stackedwidget.addWidget(self.powerbox_widget)
         # Direct power widget including it's child widget and layout
         self.directpower_widget = QtWidgets.QWidget()
         self.directpower_widget.setObjectName('directpower_widget')
@@ -330,8 +330,8 @@ class Ui_Form(object):
         self.controlsettings_tabwidget.setTabText(3, _translate('Form',
                                                                 '结果路径'))
 
-        self.powerbox_count_label.setText(_translate('Form', '开关机次数'))
-        self.powerbox_interval_label.setText(_translate('Form', '拍摄时间间隔'))
+        # self.powerbox_count_label.setText(_translate('Form', '开关机次数'))
+        # self.powerbox_interval_label.setText(_translate('Form', '拍摄时间间隔'))
         self.directpower_count_label.setText(_translate('Form', '开关机次数'))
         self.directpower_offtime_label.setText(_translate('Form', '关机时间'))
         self.directpower_keyvalue_label.setText(_translate('Form', '电源键值'))
@@ -342,9 +342,9 @@ class Ui_Form(object):
         self.crosspower_on_keyvalue_label.setText((_translate('Form', '开机键值')))
         self.crosspower_off_keyvalue_label.setText((_translate('Form', '关机键值')))
         self.crosspower_interval_label.setText(_translate('Form', '拍摄时间间隔'))
-        self.powertype_combobox.setItemText(0, _translate('Form', '电源箱交流'))
-        self.powertype_combobox.setItemText(1, _translate('Form', '红外直流'))
-        self.powertype_combobox.setItemText(2, _translate('Form', 'PRO800交流'))
+        # self.powertype_combobox.setItemText(0, _translate('Form', '电源箱交流'))
+        self.powertype_combobox.setItemText(0, _translate('Form', '红外直流'))
+        self.powertype_combobox.setItemText(1, _translate('Form', 'PRO800交流'))
 
         item = self.cameratable_tablewidget.horizontalHeaderItem(0)
         item.setText(_translate('Form', 'Tag'))
@@ -395,7 +395,7 @@ class Ui_Form(object):
     def pre_check(self):
         reg_exp = QtCore.QRegExp('[1-9][0-9]+$')
         reg_exp_validator = QtGui.QRegExpValidator(reg_exp)
-        self.powerbox_count_lineedit.setValidator(reg_exp_validator)
+        # self.powerbox_count_lineedit.setValidator(reg_exp_validator)
         self.directpower_count_lineedit.setValidator(reg_exp_validator)
         self.directpower_offtime_lineedit.setValidator(reg_exp_validator)
         self.crosspower_count_lineedit.setValidator(reg_exp_validator)
@@ -403,6 +403,6 @@ class Ui_Form(object):
 
         reg_exp = QtCore.QRegExp('[1-9]+-[1-9]+$')
         reg_exp_validator = QtGui.QRegExpValidator(reg_exp)
-        self.powerbox_interval_lineedit.setValidator(reg_exp_validator)
+        # self.powerbox_interval_lineedit.setValidator(reg_exp_validator)
         self.directpower_interval_lineedit.setValidator(reg_exp_validator)
         self.crosspower_interval_lineedit.setValidator(reg_exp_validator)

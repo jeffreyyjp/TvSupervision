@@ -8,12 +8,13 @@ date: 2018/5/14
 
 # imports
 import os
+import shutil
 import sys
-import threading
-import time
 import webbrowser
 
 import serial
+import threading
+import time
 from PyQt5 import QtCore
 from PyQt5 import QtGui
 from PyQt5 import QtMultimediaWidgets
@@ -25,7 +26,7 @@ from tvsupervision import comport_handler
 from tvsupervision import image_proc
 from tvsupervision import mainwindow
 from tvsupervision import report
-from tvsupervision.logging_handler import logger as log
+from tvsupervision.log_handler import logger as log
 
 information = QtWidgets.QMessageBox.information
 warning = QtWidgets.QMessageBox.warning
@@ -42,6 +43,7 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         self.current_snap_times = 0
         self.supervision_started = False
         self.current_cam = None
+        self.curr_result_dir = None
         self.camera_reports = []
         self.summary_report = None
         super(MainWindow, self).__init__()
@@ -73,6 +75,18 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         if camera_handler.check_camera_availability():
             self.refresh_camera_table()
         self.refresh_serial()  # TODO
+
+    def closeEvent(self, QCloseEvent):
+        if self.serial_port.is_open:
+            log.debug('Close %s.' % self.serial_port.name)
+            self.serial_port.close()
+        for cam in self.cameras:
+            if cam.is_open():
+                log.debug('Close %s.' % cam.name())
+                cam.close()
+        if self.curr_result_dir is not None:
+            shutil.move(conf.LOG_FILE, self.curr_result_dir)
+        log.debug('Close App.')
 
     def eventFilter(self, obj, event):
         """
@@ -287,17 +301,21 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         if not self.check_and_prepare():
             return
         self.start_supervision_pushbutton.setText('暂停监控')
-        if self.powertype_combobox.currentText() == '电源箱交流':
-            pass
-        elif self.powertype_combobox.currentText() == '红外直流':
+        # if self.powertype_combobox.currentText() == '电源箱交流':
+        #     pass
+        if self.powertype_combobox.currentText() == '红外直流':
             log.debug('Start direct supervision.')
             self.start_direct_supervision()
         else:
             log.debug('Start cross supervision.')
             self.start_cross_supervision()
+        # Move log file to result dir
+        shutil.move(conf.LOG_FILE, self.curr_result_dir)
 
     def pause(self):
         self.supervision_started = False
+        # Update log file to result dir.
+        shutil.move(conf.LOG_FILE, self.curr_result_dir)
         log.debug('Pause supervision.')
         self.start_supervision_pushbutton.setText('开始监控')
 
@@ -311,6 +329,7 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
             off_time = int(self.directpower_offtime_lineedit.text())
             log.debug('Power off Tv after %s seconds.' % str(off_time))
             self.serial_port.write(self.directpower_keyvalue_lineedit.text())
+            print('debug')
             self.current_snap_times += 1
             t = threading.Timer(off_time, self.start_compare)
             t.start()
@@ -474,16 +493,16 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
 
         # Initialize test result dir
         current_time = time.strftime('%Y-%m-%d_%H-%M-%S', time.localtime())
-        curr_result_dir = os.path.join(self.resultdir_linedit.text(),
-                                       current_time)
-        if not os.path.exists(curr_result_dir):
-            os.mkdir(curr_result_dir)
-        log.debug('Current result dir is %s' % curr_result_dir)
+        self.curr_result_dir = os.path.join(self.resultdir_linedit.text(),
+                                            current_time)
+        if not os.path.exists(self.curr_result_dir):
+            os.mkdir(self.curr_result_dir)
+        log.debug('Current result dir is %s' % self.curr_result_dir)
         for cam in self.cameras:
             if not cam.is_open():
                 continue
             camera_report = report.CameraReport(cam)
-            camera_report.set_result_dir(curr_result_dir)
+            camera_report.set_result_dir(self.curr_result_dir)
             if not os.path.exists(camera_report.result_dir()):
                 os.mkdir(camera_report.result_dir())
             log.debug("%s's result dir is %s" % (cam.name(),
@@ -496,7 +515,7 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         # Initialize summary report
         self.summary_report = report.SummaryReport(self.camera_reports)
         self.summary_report.report_name = os.path.join(
-            curr_result_dir, conf.SUMMARY_REPORT)
+            self.curr_result_dir, conf.SUMMARY_REPORT)
         self.summary_report.initialize_summary_report(current_time)
         return True
 

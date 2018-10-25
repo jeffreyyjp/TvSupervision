@@ -8,13 +8,15 @@ date: 2018/10/19
 
 import logging
 
+from docs import conf
+
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 
 ch = logging.StreamHandler()
 ch.setLevel(logging.DEBUG)
 
-fh = logging.FileHandler('log.txt')
+fh = logging.FileHandler(conf.LOG_FILE)
 fh.setLevel(logging.WARNING)
 
 ch_formatter = logging.Formatter('%(module)s:%(lineno)4s %(levelname)8s - %('
