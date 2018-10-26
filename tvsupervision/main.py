@@ -10,11 +10,11 @@ date: 2018/5/14
 import os
 import shutil
 import sys
+import threading
+import time
 import webbrowser
 
 import serial
-import threading
-import time
 from PyQt5 import QtCore
 from PyQt5 import QtGui
 from PyQt5 import QtMultimediaWidgets
@@ -71,7 +71,16 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
 
         Get camera, comport, and test result dir info.
         """
-
+        self.directpower_count_lineedit.setText('500')
+        self.directpower_offtime_lineedit.setText('15')
+        self.directpower_keyvalue_lineedit.setText('AAA7BF0DE3')
+        self.directpower_interval_lineedit.setText('15-3')
+        self.crosspower_count_lineedit.setText('500')
+        self.crosspower_offtime_lineedit.setText('15')
+        self.crosspower_address_lineedit.setText('55010000f2aa')
+        self.crosspower_on_keyvalue_lineedit.setText('55010001f0aa')
+        self.crosspower_off_keyvalue_lineedit.setText('55010001f1aa')
+        self.crosspower_interval_lineedit.setText('15-3')
         if camera_handler.check_camera_availability():
             self.refresh_camera_table()
         self.refresh_serial()  # TODO
@@ -194,7 +203,6 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         self.current_cam.set_current_frame(image)
         log.debug("Capturing %s's current frame is finished" %
                   self.current_cam.name())
-
 
     def display_image(self, id, image):
         # Hold standard img for cam
@@ -328,16 +336,21 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
                 # Power off first and wait for some time
             off_time = int(self.directpower_offtime_lineedit.text())
             log.debug('Power off Tv after %s seconds.' % str(off_time))
-            self.serial_port.write(self.directpower_keyvalue_lineedit.text())
-            print('debug')
+            key_value = bytes.fromhex(self.directpower_keyvalue_lineedit.text())
+            self.serial_port.write(key_value)
             self.current_snap_times += 1
             t = threading.Timer(off_time, self.start_compare)
             t.start()
             t.join()
 
     def start_cross_supervision(self):
+        self.start_supervision_pushbutton.setText('暂停监控')
         # Set cross_power address
-        self.serial_port.write(self.crosspower_address_lineedit.text())
+        power_address_key = self.crosspower_address_lineedit.text()
+        key_value = bytes.fromhex(power_address_key)
+        log.debug('Send %s to set cross power address.' % power_address_key)
+        self.serial_port.write(key_value)
+        time.sleep(5)
         while self.current_snap_times < int(
                 self.crosspower_count_lineedit.text()):
             if not self.supervision_started:
@@ -345,7 +358,10 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
             # Power off first and wait for some time
             off_time = int(self.crosspower_offtime_lineedit.text())
             log.debug('Power off Tv after %s seconds.' % str(off_time))
-            self.serial_port.write(self.crosspower_off_keyvalue_lineedit.text())
+            power_off_key = self.crosspower_off_keyvalue_lineedit.text()
+            key_value = bytes.fromhex(power_off_key)
+            log.debug('Send %s to cross power off.' % power_off_key)
+            self.serial_port.write(key_value)
             self.current_snap_times += 1
             t = threading.Timer(off_time, self.start_compare)
             t.start()
@@ -359,11 +375,13 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         if self.powertype_combobox.currentText() == '红外直流':
             power_on_key = self.directpower_keyvalue_lineedit.text()
             log.debug('Send %s to direct power on.' % power_on_key)
-            self.serial_port.write(power_on_key)
+            key_value = bytes.fromhex(power_on_key)
+            self.serial_port.write(key_value)
         elif self.powertype_combobox.currentText() == 'PRO800交流':
             power_on_key = self.crosspower_on_keyvalue_lineedit.text()
-            log.debug('Send %s to cross power on' % power_on_key)
-            self.serial_port.write(power_on_key)
+            log.debug('Send %s to cross power on.' % power_on_key)
+            key_value = bytes.fromhex(power_on_key)
+            self.serial_port.write(key_value)
         camera_diff_threads = []
         for cam in self.cameras:
             if not cam.is_open():
@@ -379,7 +397,7 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
     def camera_diff(self, cam):
         interval, times = self.crosspower_interval_lineedit.text().split('-')
         threads = []
-        for i in times:
+        for i in range(int(times)):
             interval_time = int(interval) * (i + 1)
             t = threading.Timer(interval=interval_time,
                                 function=self.image_diff, args=[cam, i + 1])
@@ -397,10 +415,10 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         :param count: current number of difference.
         :return:
         """
+        self.current_cam = cam
         if not cam.get_image_capture().isReadyForCapture():
             return
         cam.get_image_capture().imageCaptured.connect(self.capture_curr)
-        self.current_cam = cam
         log.debug("Start %s's current frame capturing." % cam.name())
         cam.capture()
         standard_image = image_proc.qimage2cv(cam.standard_img())
