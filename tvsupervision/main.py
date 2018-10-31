@@ -10,7 +10,6 @@ date: 2018/5/14
 import os
 import shutil
 import sys
-import threading
 import time
 import webbrowser
 
@@ -23,6 +22,8 @@ from PyQt5 import QtWidgets
 from docs import conf
 from tvsupervision import camera_handler
 from tvsupervision import comport_handler
+from tvsupervision import cross_supervision_worker
+from tvsupervision import direct_supervision_worker
 from tvsupervision import image_proc
 from tvsupervision import mainwindow
 from tvsupervision import report
@@ -46,6 +47,7 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         self.curr_result_dir = None
         self.camera_reports = []
         self.summary_report = None
+        self.supervision_thread = QtCore.QThread()
         super(MainWindow, self).__init__()
         self.setupUi(self)
         log.debug('App starts.')
@@ -202,11 +204,6 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
                 cam.capture()
                 log.debug("Start %s's standard image capturing..." % cam.name())
 
-    def capture_curr(self, id, image):
-        self.current_cam.set_current_frame(image)
-        log.debug("Capturing %s's current frame is finished" %
-                  self.current_cam.name())
-
     def display_image(self, id, image):
         # Hold standard img for cam
         self.current_cam.set_standard_img(image)
@@ -228,6 +225,8 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         log.debug("Capturing %s's standard image is finished." %
                   self.current_cam.name())
         # image_label.setPixmap(QtGui.QPixmap.fromImage(image))
+        self.current_cam.get_image_capture().imageCaptured.disconnect(
+            self.display_image)
 
     def update_label_image(self, label, pixmap):
         label.setPixmap(pixmap.scaled(label.size(),
@@ -303,13 +302,32 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         self.resultdir_linedit.setText(result_dir)
         log.debug('Result directory is %s.' % result_dir)
 
+    @QtCore.pyqtSlot(str, str, str, str, str)
+    def update_result_table(self, cam_name, curr_supervision_time, snap_time,
+                            diff_result, diff_percent):
+        for i in range(self.result_tabwidget.count()):
+            if self.result_tabwidget.tabText(i) == cam_name:
+                widget = self.result_tabwidget.widget(i)
+                row_count = widget.rowCount()
+                widget.insertRow(row_count)
+                curr_supervision_time = QtWidgets.QTableWidgetItem(
+                    curr_supervision_time)
+                snap_time = QtWidgets.QTableWidgetItem(snap_time)
+                diff_result = QtWidgets.QTableWidgetItem(diff_result)
+                diff_percent = QtWidgets.QTableWidgetItem(diff_percent)
+                widget.setItem(row_count, 0, curr_supervision_time)
+                widget.setItem(row_count, 1, snap_time)
+                widget.setItem(row_count, 2, diff_result)
+                widget.setItem(row_count, 3, diff_percent)
+
+
     @QtCore.pyqtSlot()
     def start_supervision(self):
         if self.start_supervision_pushbutton.text() == "开始监控":
             log.debug('Start supervision, first check param configurations.')
             self.start()
-            return
-        self.pause()
+        else:
+            self.pause()
 
     def start(self):
         self.supervision_started = True
@@ -320,12 +338,20 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         #     pass
         if self.powertype_combobox.currentText() == '红外直流':
             log.debug('Start direct supervision.')
-            self.start_direct_supervision()
+            self.direct_worker = direct_supervision_worker.DirectWorker()
+            self.init_worker(self.direct_worker)
+            self.direct_worker.moveToThread(self.supervision_thread)
+            self.supervision_thread.start()
         else:
             log.debug('Start cross supervision.')
-            self.start_cross_supervision()
-        # Move log file to result dir
-        shutil.move(conf.LOG_FILE, self.curr_result_dir)
+            self.cross_worker = cross_supervision_worker.CrossWorker()
+            self.init_worker(self.cross_worker)
+            self.cross_worker.moveToThread(self.supervision_thread)
+            self.supervision_thread.started.connect(
+                self.cross_worker.start_supervision)
+            self.cross_worker.curr_diff_finished.connect(
+                self.update_result_table)
+            self.supervision_thread.start()
 
     def pause(self):
         self.supervision_started = False
@@ -334,85 +360,33 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         log.debug('Pause supervision.')
         self.start_supervision_pushbutton.setText('开始监控')
 
-    def start_direct_supervision(self):
-        self.start_supervision_pushbutton.setText('暂停监控')
-        while self.current_snap_times < int(
-                self.directpower_count_lineedit.text()):
-            if not self.supervision_started:
-                return
-                # Power off first and wait for some time
-            off_time = int(self.directpower_offtime_lineedit.text())
-            log.debug('Power off Tv after %s seconds.' % str(off_time))
-            key_value = bytes.fromhex(self.directpower_keyvalue_lineedit.text())
-            self.serial_port.write(key_value)
-            self.current_snap_times += 1
-            t = threading.Timer(off_time, self.start_compare)
-            t.start()
-            t.join()
-
-    def start_cross_supervision(self):
-        self.start_supervision_pushbutton.setText('暂停监控')
-        # Set cross_power address
-        power_address_key = self.crosspower_address_lineedit.text()
-        key_value = bytes.fromhex(power_address_key)
-        log.debug('Send %s to set cross power address.' % power_address_key)
-        self.serial_port.write(key_value)
-        time.sleep(5)
-        while self.current_snap_times < int(
-                self.crosspower_count_lineedit.text()):
-            if not self.supervision_started:
-                return
-            # Power off first and wait for some time
-            off_time = int(self.crosspower_offtime_lineedit.text())
-            log.debug('Power off Tv after %s seconds.' % str(off_time))
-            power_off_key = self.crosspower_off_keyvalue_lineedit.text()
-            key_value = bytes.fromhex(power_off_key)
-            log.debug('Send %s to cross power off.' % power_off_key)
-            self.serial_port.write(key_value)
-            self.current_snap_times += 1
-            t = threading.Timer(off_time, self.start_compare)
-            t.start()
-            t.join()
-
-    def start_compare(self):
-        """
-        Process all open cameras to diff current frame with standard img.
-        :return:
-        """
+    def init_worker(self, worker):
+        worker.cameras = self.cameras
+        worker.serial_port = self.serial_port
         if self.powertype_combobox.currentText() == '红外直流':
-            power_on_key = self.directpower_keyvalue_lineedit.text()
-            log.debug('Send %s to direct power on.' % power_on_key)
-            key_value = bytes.fromhex(power_on_key)
-            self.serial_port.write(key_value)
-        elif self.powertype_combobox.currentText() == 'PRO800交流':
-            power_on_key = self.crosspower_on_keyvalue_lineedit.text()
-            log.debug('Send %s to cross power on.' % power_on_key)
-            key_value = bytes.fromhex(power_on_key)
-            self.serial_port.write(key_value)
-        camera_diff_threads = []
-        for cam in self.cameras:
-            if not cam.is_open():
-                continue
-            t = threading.Thread(target=self.camera_diff, args=(cam,))
-            camera_diff_threads.append(t)
-        for t in camera_diff_threads:
-            t.start()
-        for t in camera_diff_threads:
-            t.join()
-        self.summary_report.update_summary_report()
+            worker.supervision_count = int(
+                self.directpower_count_lineedit.text())
+            worker.off_time = int(self.directpower_offtime_lineedit.text())
+            interval_times = self.directpower_interval_lineedit.text().split(
+                '-')
+            interval, times = list(map(int, interval_times))
+            worker.snap_interval = interval
+            worker.snap_count = times
+            worker.power_key = bytes.fromhex(
+                self.directpower_keyvalue_lineedit.text())
+        else:
 
-    def camera_diff(self, cam):
-        interval, times = self.crosspower_interval_lineedit.text().split('-')
-        threads = []
-        for i in range(int(times)):
-            interval_time = int(interval) * (i + 1)
-            t = threading.Timer(interval=interval_time,
-                                function=self.image_diff, args=[cam, i + 1])
-            threads.append(t)
-        for t in threads:
-            t.start()
-        for t in threads:
-            t.join()
+            worker.supervision_count = int(
+                self.crosspower_count_lineedit.text())
+            worker.off_time = int(self.crosspower_offtime_lineedit.text())
+            interval_times = self.crosspower_interval_lineedit.text().split('-')
+            interval, times = list(map(int, interval_times))
+            worker.snap_interval = interval
+            worker.snap_count = times
+            worker.power_on_key = bytes.fromhex(
+                self.crosspower_on_keyvalue_lineedit.text())
+            worker.power_off_key = bytes.fromhex(
+                self.crosspower_off_keyvalue_lineedit.text())
 
     def image_diff(self, cam, count):
         """
@@ -542,6 +516,16 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         self.summary_report.report_name = os.path.join(
             self.curr_result_dir, conf.SUMMARY_REPORT)
         self.summary_report.initialize_summary_report(current_time)
+
+        # Initialize result table
+        for cam in self.cameras:
+            if not cam.is_open():
+                continue
+            result_cam_table = QtWidgets.QTableWidget()
+            result_cam_table.setColumnCount(4)
+            result_cam_table.setHorizontalHeaderLabels(['当前轮次', '对比轮次',
+                                                        '对比结果', '相似度'])
+            self.result_tabwidget.addTab(result_cam_table, cam.name())
         return True
 
 

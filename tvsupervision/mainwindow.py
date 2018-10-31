@@ -189,13 +189,8 @@ class Ui_Form(object):
         self.cameratable_tablewidget = QtWidgets.QTableWidget()
         self.cameratable_tablewidget.setObjectName('cameratable_tablewidget')
         self.cameratable_tablewidget.setColumnCount(3)
-        self.cameratable_tablewidget.setRowCount(0)
-        item = QtWidgets.QTableWidgetItem()
-        self.cameratable_tablewidget.setHorizontalHeaderItem(0, item)
-        item = QtWidgets.QTableWidgetItem()
-        self.cameratable_tablewidget.setHorizontalHeaderItem(1, item)
-        item = QtWidgets.QTableWidgetItem()
-        self.cameratable_tablewidget.setHorizontalHeaderItem(2, item)
+        self.cameratable_tablewidget.setHorizontalHeaderLabels(['Tag',
+                                                                'Name', 'ID'])
         self.cameratable_tablewidget.hideColumn(2)
         self.camerasetting_layout.addWidget(self.cameratable_tablewidget)
         # Camera buttons using QHBoxLayout
@@ -296,14 +291,17 @@ class Ui_Form(object):
         self.start_supervision_layout.addWidget(self.look_result_pushbutton)
         self.start_supervision_layout.addStretch()
         self.controlsettings_layout.addLayout(self.start_supervision_layout)
-
         self.main_layout.addWidget(self.controlsettings_groupbox, 0, 0, 1, 1)
 
         # Display standard image widgets
         self.standardimg_tabwidget = QtWidgets.QTabWidget()
         self.standardimg_tabwidget.setObjectName('standardimg_tabwidget')
-
         self.main_layout.addWidget(self.standardimg_tabwidget, 0, 1, 1, 1)
+
+        # Set result widget
+        self.result_tabwidget = QtWidgets.QTabWidget()
+        self.result_tabwidget.setObjectName('result_tabwidget')
+        self.main_layout.addWidget(self.result_tabwidget, 1, 0, 1, 2)
 
         self.main_layout.setColumnStretch(0, 1)
         self.main_layout.setColumnStretch(1, 2)
@@ -345,13 +343,6 @@ class Ui_Form(object):
         # self.powertype_combobox.setItemText(0, _translate('Form', '电源箱交流'))
         self.powertype_combobox.setItemText(0, _translate('Form', '红外直流'))
         self.powertype_combobox.setItemText(1, _translate('Form', 'PRO800交流'))
-
-        item = self.cameratable_tablewidget.horizontalHeaderItem(0)
-        item.setText(_translate('Form', 'Tag'))
-        item = self.cameratable_tablewidget.horizontalHeaderItem(1)
-        item.setText(_translate('Form', 'Name'))
-        item = self.cameratable_tablewidget.horizontalHeaderItem(2)
-        item.setText(_translate('Form', 'ID'))
         self.refreshcamera_pushbutton.setText(_translate('Form', '刷新列表'))
         self.opencamera_pushbutton.setText(_translate('Form', '打开摄像头'))
         self.capturestd_pushbutton.setText(_translate('Form', '拍摄标准图'))
