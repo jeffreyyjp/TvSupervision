@@ -58,7 +58,7 @@ class SummaryReport(object):
         for item in self.camera_reports:
             detail_element = report_doc.createElement('Detail')
             details_element.appendChild(detail_element)
-            for attr in item.summary_attr.keys():
+            for attr in item.summary_attr:
                 detail_element.setAttribute(attr, item.summary_attr[attr])
         with open(self.report_name, 'w') as f:
             report_doc.writexml(f, indent='', addindent='\t', newl='\n',
@@ -72,7 +72,7 @@ class SummaryReport(object):
                 if detail.getAttribute(
                         'cameraName') != camera_report.camera_name:
                     continue
-                for attr in camera_report.summary_attr.keys():
+                for attr in camera_report.summary_attr:
                     detail.setAttribute(attr, camera_report.summary_attr[attr])
         with open(self.report_name, 'w') as f:
             report_doc.writexml(f, indent='', addindent='\t', newl='\n',
@@ -93,16 +93,17 @@ class CameraReport(object):
         self.pass_times = 0
         self.fail_times = 0
         self.total_times = self.pass_times + self.fail_times
+        self.curr_supervision_time = 0
+        self.snap_time = 0
+        self.current_time = 0
         self.fileSrc = os.path.join('.', self.camera_name, conf.DETAILS_REPORT)
+        self.img_src = None
         self.diff_state = False
         self.diff_percent = 0
         self.summary_attr = {'cameraName': self.camera_name, 'passTimes':
             self.pass_times, 'failTimes': self.fail_times, 'totalTimes':
                                  self.total_times, 'fileSrc': self.fileSrc}
-        self.camera_attr = {'snapTimes': '0', 'currentTime': '0',
-                            'cameraName': self.camera_name, 'diffPercent':
-                                self.diff_percent, 'state': self.diff_state,
-                            'imgSrc': ''}
+        self.camera_attr = None
 
     def camera(self):
         return self._camera
@@ -119,8 +120,17 @@ class CameraReport(object):
                                                       conf.STANDARD_IMG))
 
     def save_current_img(self):
-        self._camera.current_frame.save(os.path.join(self._result_dir,
-                                                     self.fileSrc))
+        self._camera.current_frame().save(os.path.join(self._result_dir,
+                                                       self.img_src))
+
+    def update_camera_details(self):
+        self.camera_attr = {'currSupervisionTime': self.curr_supervision_time,
+                            'snapTime': self.snap_time,
+                            'currentTime': self.current_time,
+                            'cameraName': self.camera_name,
+                            'diffPercent': self.diff_percent,
+                            'state': self.diff_state,
+                            'imgSrc': self.img_src}
 
     def initialize(self):
         report_doc = dom.Document()
@@ -143,8 +153,8 @@ class CameraReport(object):
         results_element = report_doc.getElementsByTagName('Results')[0]
         result_element = report_doc.createElement('Result')
         results_element.appendChild(result_element)
-        for attr in self.camera_attr.keys():
-            result_element.setAttribute(attr, self.camera_attr[attr])
+        for attr in self.camera_attr:
+            result_element.setAttribute(attr, str(self.camera_attr[attr]))
         with open(self.report_name, 'w') as f:
             report_doc.writexml(f, indent='', addindent='\t', newl='\n',
                                 encoding='UTF-8')

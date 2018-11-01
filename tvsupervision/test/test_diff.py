@@ -18,10 +18,12 @@ current_img_false = '2017-12-03_14-52-14_0319.jpeg'
 class TestDiff(TestCase):
     def test_diff_true(self):
         result, diff_percent = image_proc.diff(standard_img, current_img)
+        print(result, diff_percent)
         self.assertEqual(True, result)
 
     def test_diff_false(self):
         result, diff_percent = image_proc.diff(standard_img, current_img_false)
+        print(result, diff_percent)
         self.assertEqual(False, result)
 
 

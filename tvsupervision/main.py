@@ -22,11 +22,9 @@ from PyQt5 import QtWidgets
 from docs import conf
 from tvsupervision import camera_handler
 from tvsupervision import comport_handler
-from tvsupervision import cross_supervision_worker
-from tvsupervision import direct_supervision_worker
-from tvsupervision import image_proc
 from tvsupervision import mainwindow
 from tvsupervision import report
+from tvsupervision import supervision_worker
 from tvsupervision.log_handler import logger as log
 
 information = QtWidgets.QMessageBox.information
@@ -42,11 +40,11 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         self.serial_port = serial.Serial()
         self.cameras = camera_handler.get_cameras()
         self.current_snap_times = 0
-        self.supervision_started = False
         self.current_cam = None
         self.curr_result_dir = None
         self.camera_reports = []
         self.summary_report = None
+        self.worker = None
         self.supervision_thread = QtCore.QThread()
         super(MainWindow, self).__init__()
         self.setupUi(self)
@@ -83,11 +81,25 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         self.crosspower_on_keyvalue_lineedit.setText('55010001f0aa')
         self.crosspower_off_keyvalue_lineedit.setText('55010001f1aa')
         self.crosspower_interval_lineedit.setText('15-3')
+        self.resultdir_linedit.setText(conf.BASE_OPEN_DIR)
         if camera_handler.check_camera_availability():
             self.refresh_camera_table()
         self.refresh_serial()  # TODO
 
-    def closeEvent(self, QCloseEvent):
+    def closeEvent(self, event):
+        if self.supervision_thread.isRunning():
+            log.warning('Supervision is still running.')
+            button = warning(self, '提示', '电视监控正在运行，确定要关闭？',
+                             QtWidgets.QMessageBox.Yes |
+                             QtWidgets.QMessageBox.No)
+            if button == QtWidgets.QMessageBox.Yes:
+                self.supervision_thread.terminate()
+                self.supervision_thread.wait()
+                # self.supervision_thread.quit()
+                event.accept()
+            else:
+                event.ignore()
+                return
         if self.serial_port.is_open:
             log.debug('Close %s.' % self.serial_port.name)
             self.serial_port.close()
@@ -97,7 +109,10 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
                 cam.close()
         if self.curr_result_dir is not None:
             shutil.move(conf.LOG_FILE, self.curr_result_dir)
+        self.supervision_thread.terminate()
+        self.supervision_thread.wait()
         log.debug('Close App.')
+        event.accept()
 
     def eventFilter(self, obj, event):
         """
@@ -330,7 +345,6 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
             self.pause()
 
     def start(self):
-        self.supervision_started = True
         if not self.check_and_prepare():
             return
         self.start_supervision_pushbutton.setText('暂停监控')
@@ -338,31 +352,29 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         #     pass
         if self.powertype_combobox.currentText() == '红外直流':
             log.debug('Start direct supervision.')
-            self.direct_worker = direct_supervision_worker.DirectWorker()
-            self.init_worker(self.direct_worker)
-            self.direct_worker.moveToThread(self.supervision_thread)
-            self.supervision_thread.start()
+            self.worker = supervision_worker.DirectWorker()
         else:
             log.debug('Start cross supervision.')
-            self.cross_worker = cross_supervision_worker.CrossWorker()
-            self.init_worker(self.cross_worker)
-            self.cross_worker.moveToThread(self.supervision_thread)
-            self.supervision_thread.started.connect(
-                self.cross_worker.start_supervision)
-            self.cross_worker.curr_diff_finished.connect(
-                self.update_result_table)
-            self.supervision_thread.start()
+            self.worker = supervision_worker.CrossWorker()
+        self.init_worker(self.worker)
+        self.worker.moveToThread(self.supervision_thread)
+        self.supervision_thread.started.connect(
+            self.worker.start_supervision)
+        self.worker.diff_finished.connect(self.update_result_table)
+        self.worker.supervision_finished.connect(self.supervision_thread.quit)
+        self.worker.supervision_finished.connect(self.resume)
+        self.worker.supervision_finished.connect(self.worker.deleteLater)
+        self.supervision_thread.finished.connect(
+            self.supervision_thread.deleteLater)
+        self.supervision_thread.start()
 
     def pause(self):
-        self.supervision_started = False
         # Update log file to result dir.
         shutil.move(conf.LOG_FILE, self.curr_result_dir)
         log.debug('Pause supervision.')
         self.start_supervision_pushbutton.setText('开始监控')
 
     def init_worker(self, worker):
-        worker.cameras = self.cameras
-        worker.serial_port = self.serial_port
         if self.powertype_combobox.currentText() == '红外直流':
             worker.supervision_count = int(
                 self.directpower_count_lineedit.text())
@@ -387,51 +399,23 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
                 self.crosspower_on_keyvalue_lineedit.text())
             worker.power_off_key = bytes.fromhex(
                 self.crosspower_off_keyvalue_lineedit.text())
+        worker.cameras = self.cameras
+        worker.serial_port = self.serial_port
+        worker.camera_reports = self.camera_reports
+        worker.summary_report = self.summary_report
 
-    def image_diff(self, cam, count):
-        """
-        Current camera to diff it's standard and current frame.
+    def resume(self):
+        self.summary_report.update_summary_report()
+        self.start_supervision_pushbutton.setText('开始监控')
 
-        :param cam: current camera
-        :param count: current number of difference.
-        :return:
-        """
-        self.current_cam = cam
-        if not cam.get_image_capture().isReadyForCapture():
-            return
-        cam.get_image_capture().imageCaptured.connect(self.capture_curr)
-        log.debug("Start %s's current frame capturing." % cam.name())
-        cam.capture()
-        standard_image = image_proc.qimage2cv(cam.standard_img())
-        current_image = image_proc.qimage2cv(cam.current_frame())
-        diff_result, diff_percent = image_proc.diff(standard_image,
-                                                    current_image)
-        log.debug("%s : %s's %s diff result is %s, different percent is %s" % (
-            str(self.current_snap_times), cam.name(), str(count), diff_result,
-            str(diff_percent)))
-        for camera_report in self.camera_reports:
-            if cam is not camera_report.camera():
-                continue
-            current_time = time.strftime('%Y-%m-%d_%H-%M-%S', time.localtime())
-            camera_report.camera_attr['currentTime'] = current_time
-            current_image_name = '%s_%s.%s' % (current_time,
-                                               self.current_snap_times,
-                                               conf.IMG_POSTFIX)
-            camera_report.camera_attr['snapTimes'] = self.current_snap_times
-            camera_report.camera_attr['imgSrc'] = current_image_name
-            camera_report.diff_state = diff_result
-            camera_report.diff_percent = diff_percent
-            if not diff_result:
-                camera_report.fail_times += 1
-                camera_report.update()
-            camera_report.pass_times += 1
-            log.debug('Save current image to %s' % camera_report.result_dir())
-            camera_report.save_current_img()
 
     def look_result(self):
         if self.summary_report is None:
             log.warning("Test result doesn't exist.")
             warning(self, '提示', '测试结果未生成.')
+            return
+        if self.supervision_thread.isRunning():
+            warning(self, '提示', '监控正在进行，无法查看测试报告')
             return
         ie = webbrowser.get(webbrowser.iexplore)
         ie.open(self.summary_report.report_name)
@@ -524,7 +508,7 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
             result_cam_table = QtWidgets.QTableWidget()
             result_cam_table.setColumnCount(4)
             result_cam_table.setHorizontalHeaderLabels(['当前轮次', '对比轮次',
-                                                        '对比结果', '相似度'])
+                                                        '对比结果', '误差值'])
             self.result_tabwidget.addTab(result_cam_table, cam.name())
         return True
 
