@@ -175,7 +175,7 @@ class Ui_Form(object):
         # Power type combobox including it's child and layout
         self.powertype_combobox = QtWidgets.QComboBox()
         self.powertype_combobox.setObjectName('powertype_combobox')
-        self.powertype_combobox.addItems([''] * 3)
+        self.powertype_combobox.addItems([''] * 2)
         self.powertype_layout.addWidget(self.powertype_combobox)
         self.controlsettings_tabwidget.addTab(self.powertype_widget, '')
 
