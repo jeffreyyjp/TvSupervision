@@ -7,11 +7,9 @@ date: 2018/7/12
 """
 
 # imports
-import sys
 
 from PyQt5 import QtMultimedia
 from PyQt5 import QtMultimediaWidgets
-from PyQt5 import QtWidgets
 
 
 def check_camera_availability():
@@ -108,15 +106,3 @@ class Camera(object):
 
     def current_frame(self):
         return self._current_frame
-
-
-def main():
-    app = QtWidgets.QApplication(sys.argv)
-    cameras = get_cameras()
-    for item in cameras:
-        print(item.name())
-    sys.exit(app.exec())
-
-
-if __name__ == '__main__':
-    main()

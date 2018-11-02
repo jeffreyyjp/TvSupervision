@@ -39,11 +39,12 @@ class SummaryReport(object):
     Object that represents summary's report
     """
 
-    def __init__(self, camera_reports):
+    def __init__(self, camera_reports, report_name, initialize_time):
         self.camera_reports = camera_reports
-        self.report_name = None
+        self.report_name = report_name
+        self.initialize(initialize_time)
 
-    def initialize_summary_report(self, initialize_time):
+    def initialize(self, initialize_time):
         report_doc = dom.Document()
         pi_node = report_doc.createProcessingInstruction(
             target='xml-stylesheet',
@@ -69,6 +70,7 @@ class SummaryReport(object):
         detail_elements = report_doc.getElementsByTagName('Detail')
         for detail in detail_elements:
             for camera_report in self.camera_reports:
+                camera_report.update_summary_details()
                 if detail.getAttribute(
                         'cameraName') != camera_report.camera_name:
                     continue
@@ -85,11 +87,11 @@ class CameraReport(object):
     Object that represents camera's report
     """
 
-    def __init__(self, camera):
-        self._camera = camera
-        self.camera_name = '_'.join([self._camera.tag(), self._camera.name()])
-        self._result_dir = None
-        self.report_name = None
+    def __init__(self, camera, basedir):
+        self.camera = camera
+        self.camera_name = '_'.join([self.camera.tag(), self.camera.name()])
+        self.result_dir = os.path.join(basedir, self.camera_name)
+        self.report_name = os.path.join(self.result_dir, conf.DETAILS_REPORT)
         self.pass_times = 0
         self.fail_times = 0
         self.total_times = self.pass_times + self.fail_times
@@ -100,39 +102,24 @@ class CameraReport(object):
         self.img_src = None
         self.diff_state = False
         self.diff_percent = 0
-        self.summary_attr = {'cameraName': self.camera_name, 'passTimes':
-            self.pass_times, 'failTimes': self.fail_times, 'totalTimes':
-                                 self.total_times, 'fileSrc': self.fileSrc}
         self.camera_attr = None
-
-    def camera(self):
-        return self._camera
-
-    def set_result_dir(self, basedir):
-        self._result_dir = os.path.join(basedir, self.camera_name)
-        self.report_name = os.path.join(self._result_dir, conf.DETAILS_REPORT)
-
-    def result_dir(self):
-        return self._result_dir
+        self.summary_attr = {'cameraName': self.camera_name,
+                             'passTimes': self.pass_times,
+                             'failTimes': self.fail_times,
+                             'totalTimes': self.total_times,
+                             'fileSrc': self.fileSrc}
+        self.initialize()
 
     def save_standard_img(self):
-        self._camera.standard_img().save(os.path.join(self._result_dir,
-                                                      conf.STANDARD_IMG))
+        self.camera.standard_img().save(os.path.join(self.result_dir,
+                                                     conf.STANDARD_IMG))
 
     def save_current_img(self):
-        self._camera.current_frame().save(os.path.join(self._result_dir,
-                                                       self.img_src))
-
-    def update_camera_details(self):
-        self.camera_attr = {'currSupervisionTime': self.curr_supervision_time,
-                            'snapTime': self.snap_time,
-                            'currentTime': self.current_time,
-                            'cameraName': self.camera_name,
-                            'diffPercent': self.diff_percent,
-                            'state': self.diff_state,
-                            'imgSrc': self.img_src}
-
+        self.camera.current_frame().save(os.path.join(self.result_dir,
+                                                      self.img_src))
     def initialize(self):
+        if not os.path.exists(self.result_dir):
+            os.mkdir(self.result_dir)
         report_doc = dom.Document()
         pi_node = report_doc.createProcessingInstruction(
             target='xml-stylesheet',
@@ -148,7 +135,24 @@ class CameraReport(object):
             report_doc.writexml(f, indent='', addindent='\t', newl='\n',
                                 encoding='UTF-8')
 
+    def update_summary_details(self):
+        self.summary_attr = {'cameraName': self.camera_name,
+                             'passTimes': self.pass_times,
+                             'failTimes': self.fail_times,
+                             'totalTimes': self.total_times,
+                             'fileSrc': self.fileSrc}
+
+    def update_camera_details(self):
+        self.camera_attr = {'currSupervisionTime': self.curr_supervision_time,
+                            'snapTime': self.snap_time,
+                            'currentTime': self.current_time,
+                            'diffPercent': self.diff_percent,
+                            'state': self.diff_state,
+                            'imgSrc': self.img_src}
+
+
     def update(self):
+        self.update_camera_details()
         report_doc = dom.parse(self.report_name)
         results_element = report_doc.getElementsByTagName('Results')[0]
         result_element = report_doc.createElement('Result')

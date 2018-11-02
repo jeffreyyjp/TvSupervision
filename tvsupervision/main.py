@@ -31,6 +31,7 @@ information = QtWidgets.QMessageBox.information
 warning = QtWidgets.QMessageBox.warning
 critical = QtWidgets.QMessageBox.critical
 
+
 class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
     """
     Setup window
@@ -41,7 +42,7 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         self.cameras = camera_handler.get_cameras()
         self.current_snap_times = 0
         self.current_cam = None
-        self.curr_result_dir = None
+        self.base_dir = None
         self.camera_reports = []
         self.summary_report = None
         self.worker = None
@@ -93,10 +94,7 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
                              QtWidgets.QMessageBox.Yes |
                              QtWidgets.QMessageBox.No)
             if button == QtWidgets.QMessageBox.Yes:
-                self.supervision_thread.terminate()
-                self.supervision_thread.wait()
-                # self.supervision_thread.quit()
-                event.accept()
+                self.supervision_thread.quit()
             else:
                 event.ignore()
                 return
@@ -106,11 +104,10 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         for cam in self.cameras:
             if cam.is_open():
                 log.debug('Close %s.' % cam.name())
+                cam.get_viewfinder().close()
                 cam.close()
-        if self.curr_result_dir is not None:
-            shutil.move(conf.LOG_FILE, self.curr_result_dir)
-        self.supervision_thread.terminate()
-        self.supervision_thread.wait()
+        # if self.base_dir is not None:
+        #     shutil.move(conf.LOG_FILE, self.base_dir)
         log.debug('Close App.')
         event.accept()
 
@@ -335,7 +332,6 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
                 widget.setItem(row_count, 2, diff_result)
                 widget.setItem(row_count, 3, diff_percent)
 
-
     @QtCore.pyqtSlot()
     def start_supervision(self):
         if self.start_supervision_pushbutton.text() == "开始监控":
@@ -358,19 +354,16 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
             self.worker = supervision_worker.CrossWorker()
         self.init_worker(self.worker)
         self.worker.moveToThread(self.supervision_thread)
-        self.supervision_thread.started.connect(
-            self.worker.start_supervision)
+        self.supervision_thread.started.connect(self.worker.start_supervision)
         self.worker.diff_finished.connect(self.update_result_table)
         self.worker.supervision_finished.connect(self.supervision_thread.quit)
         self.worker.supervision_finished.connect(self.resume)
-        self.worker.supervision_finished.connect(self.worker.deleteLater)
-        self.supervision_thread.finished.connect(
-            self.supervision_thread.deleteLater)
+        self.supervision_thread.finished.connect(self.worker.deleteLater)
         self.supervision_thread.start()
 
     def pause(self):
         # Update log file to result dir.
-        shutil.move(conf.LOG_FILE, self.curr_result_dir)
+        shutil.move(conf.LOG_FILE, self.base_dir)
         log.debug('Pause supervision.')
         self.start_supervision_pushbutton.setText('开始监控')
 
@@ -405,9 +398,9 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         worker.summary_report = self.summary_report
 
     def resume(self):
-        self.summary_report.update_summary_report()
+        log.debug('Supervision is finished.')
+        # self.summary_report.update_summary_report()
         self.start_supervision_pushbutton.setText('开始监控')
-
 
     def look_result(self):
         if self.summary_report is None:
@@ -476,30 +469,26 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
 
         # Initialize test result dir
         current_time = time.strftime('%Y-%m-%d_%H-%M-%S', time.localtime())
-        self.curr_result_dir = os.path.join(self.resultdir_linedit.text(),
-                                            current_time)
-        if not os.path.exists(self.curr_result_dir):
-            os.mkdir(self.curr_result_dir)
-        log.debug('Current result dir is %s' % self.curr_result_dir)
+        self.base_dir = os.path.join(self.resultdir_linedit.text(),
+                                     current_time)
+        if not os.path.exists(self.base_dir):
+            os.mkdir(self.base_dir)
+        log.debug('Current base dir is %s' % self.base_dir)
         for cam in self.cameras:
             if not cam.is_open():
                 continue
-            camera_report = report.CameraReport(cam)
-            camera_report.set_result_dir(self.curr_result_dir)
-            if not os.path.exists(camera_report.result_dir()):
-                os.mkdir(camera_report.result_dir())
+            camera_report = report.CameraReport(cam, self.base_dir)
             log.debug("%s's result dir is %s" % (cam.name(),
-                                                 camera_report.result_dir()))
+                                                 camera_report.result_dir))
             # Save standard img to cam's dir
             camera_report.save_standard_img()
             # Initialize each open camera's report
-            camera_report.initialize()
             self.camera_reports.append(camera_report)
         # Initialize summary report
-        self.summary_report = report.SummaryReport(self.camera_reports)
-        self.summary_report.report_name = os.path.join(
-            self.curr_result_dir, conf.SUMMARY_REPORT)
-        self.summary_report.initialize_summary_report(current_time)
+        summary_report_name = os.path.join(self.base_dir, conf.SUMMARY_REPORT)
+        self.summary_report = report.SummaryReport(self.camera_reports,
+                                                   summary_report_name,
+                                                   current_time)
 
         # Initialize result table
         for cam in self.cameras:

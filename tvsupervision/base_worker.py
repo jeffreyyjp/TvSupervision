@@ -38,6 +38,7 @@ class BaseWorker(QtCore.QObject):
         if cam.get_image_capture().isReadyForCapture():
             cam.get_image_capture().imageCaptured.connect(self.capture_curr)
             cam.get_image_capture().imageCaptured.connect(event_loop.quit)
+            log.debug('Snap current image.')
             cam.capture()
             event_loop.exec()
         self.diff(snap_time)
@@ -49,22 +50,22 @@ class BaseWorker(QtCore.QObject):
             self.capture_curr)
 
     def diff(self, snap_time):
-        standard_image = image_proc.qimage2cv(
-            self.current_cam.standard_img())
-        current_image = image_proc.qimage2cv(
-            self.current_cam.current_frame())
+        standard_image = image_proc.qimage2cv(self.current_cam.standard_img())
+        current_image = image_proc.qimage2cv(self.current_cam.current_frame())
         diff_result, diff_percent = image_proc.diff(standard_image,
                                                     current_image)
-        diff_percent = int(diff_percent)
         self.diff_finished.emit(self.current_cam.name(),
                                      str(self.curr_supervision_time),
                                      str(snap_time),
                                      str(diff_result), str(diff_percent))
+        log.debug("%s's %s_%s diff result is %s, diff percent is %s" % (
+            self.current_cam.name(), self.curr_supervision_time, snap_time,
+            diff_result, diff_percent))
         self.save_report(diff_result, diff_percent, snap_time)
 
     def save_report(self, diff_result, diff_percent, snap_time):
         for camera_report in self.camera_reports:
-            if self.current_cam is not camera_report.camera():
+            if self.current_cam is not camera_report.camera:
                 continue
             current_time = time.strftime('%Y-%m-%d_%H-%M-%S', time.localtime())
             camera_report.current_time = current_time
@@ -75,10 +76,8 @@ class BaseWorker(QtCore.QObject):
             camera_report.img_src = current_image_name
             camera_report.diff_state = diff_result
             camera_report.diff_percent = diff_percent
-            camera_report.update_camera_details()
             if not diff_result:
                 camera_report.fail_times += 1
                 camera_report.update()
             camera_report.pass_times += 1
-            log.debug('Save current image to %s' % camera_report.result_dir())
             camera_report.save_current_img()
