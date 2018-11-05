@@ -34,7 +34,7 @@ class CrossWorker(base_worker.BaseWorker):
                     if not cam.is_open():
                         continue
                     self.snap_and_diff(cam, i)
-        # self.summary_report.update_summary_report()
+        self.summary_report.update()
         self.supervision_finished.emit()
 
 
@@ -59,5 +59,5 @@ class DirectWorker(base_worker.BaseWorker):
                     if not cam.is_open():
                         continue
                     self.snap_and_diff(cam, i)
-        # self.summary_report.update_summary_report()
+        self.summary_report.update()
         self.supervision_finished.emit()

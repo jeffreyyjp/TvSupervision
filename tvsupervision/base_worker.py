@@ -9,6 +9,7 @@ date: 2018/10/31
 import time
 
 from PyQt5 import QtCore
+from PyQt5 import QtGui
 
 from docs import conf
 from tvsupervision import image_proc
@@ -43,7 +44,7 @@ class BaseWorker(QtCore.QObject):
             event_loop.exec()
         self.diff(snap_time)
 
-    # @QtCore.pyqtSlot(int, QtGui.QImage)
+    @QtCore.pyqtSlot(int, QtGui.QImage)
     def capture_curr(self, id, image):
         self.current_cam.set_current_frame(image)
         self.current_cam.get_image_capture().imageCaptured.disconnect(
@@ -79,5 +80,6 @@ class BaseWorker(QtCore.QObject):
             if not diff_result:
                 camera_report.fail_times += 1
                 camera_report.update()
-            camera_report.pass_times += 1
+            else:
+                camera_report.pass_times += 1
             camera_report.save_current_img()

@@ -56,26 +56,30 @@ class SummaryReport(object):
         details_element = report_doc.createElement('Details')
         root_element.appendChild(details_element)
         details_element.setAttribute('time', initialize_time)
-        for item in self.camera_reports:
+        for camera_report in self.camera_reports:
             detail_element = report_doc.createElement('Detail')
             details_element.appendChild(detail_element)
-            for attr in item.summary_attr:
-                detail_element.setAttribute(attr, item.summary_attr[attr])
+            for attr in camera_report.summary_attr:
+                detail_element.setAttribute(attr,
+                                            str(camera_report.summary_attr[
+                                                    attr]))
         with open(self.report_name, 'w') as f:
             report_doc.writexml(f, indent='', addindent='\t', newl='\n',
                                 encoding='UTF-8')
 
-    def update_summary_report(self):
+    def update(self):
         report_doc = dom.parse(self.report_name)
         detail_elements = report_doc.getElementsByTagName('Detail')
-        for detail in detail_elements:
-            for camera_report in self.camera_reports:
-                camera_report.update_summary_details()
-                if detail.getAttribute(
-                        'cameraName') != camera_report.camera_name:
+        for camera_report in self.camera_reports:
+            camera_report.update_summary_details()
+            for detail_element in detail_elements:
+                if detail_element.getAttribute('cameraName') != \
+                        camera_report.camera_name:
                     continue
                 for attr in camera_report.summary_attr:
-                    detail.setAttribute(attr, camera_report.summary_attr[attr])
+                    detail_element.setAttribute(attr,
+                                                str(camera_report.summary_attr[
+                                                        attr]))
         with open(self.report_name, 'w') as f:
             report_doc.writexml(f, indent='', addindent='\t', newl='\n',
                                 encoding='UTF-8')
@@ -94,7 +98,7 @@ class CameraReport(object):
         self.report_name = os.path.join(self.result_dir, conf.DETAILS_REPORT)
         self.pass_times = 0
         self.fail_times = 0
-        self.total_times = self.pass_times + self.fail_times
+        self.total_times = 0
         self.curr_supervision_time = 0
         self.snap_time = 0
         self.current_time = 0
@@ -136,6 +140,7 @@ class CameraReport(object):
                                 encoding='UTF-8')
 
     def update_summary_details(self):
+        self.total_times = self.pass_times + self.fail_times
         self.summary_attr = {'cameraName': self.camera_name,
                              'passTimes': self.pass_times,
                              'failTimes': self.fail_times,
