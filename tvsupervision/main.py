@@ -236,7 +236,6 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         self.update_label_image(image_label, QtGui.QPixmap.fromImage(image))
         log.debug("Capturing %s's standard image is finished." %
                   self.current_cam.name())
-        # image_label.setPixmap(QtGui.QPixmap.fromImage(image))
         self.current_cam.get_image_capture().imageCaptured.disconnect(
             self.display_image)
 
@@ -309,9 +308,12 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
     @QtCore.pyqtSlot()
     def choose_resultdir(self):
         result_dir = QtWidgets.QFileDialog.getExistingDirectory(self, '选择结果路径',
-                                                                conf.BASE_OPEN_DIR,
+                                                                self.resultdir_linedit.text(),
                                                                 QtWidgets.QFileDialog.ShowDirsOnly)
-        self.resultdir_linedit.setText(result_dir)
+        if result_dir == '':
+            return
+        else:
+            self.resultdir_linedit.setText(result_dir)
         log.debug('Result directory is %s.' % result_dir)
 
     @QtCore.pyqtSlot(str, str, str, str, str)
@@ -369,31 +371,29 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
 
     def init_worker(self, worker):
         if self.powertype_combobox.currentText() == '红外直流':
-            worker.supervision_count = int(
-                self.directpower_count_lineedit.text())
-            worker.off_time = int(self.directpower_offtime_lineedit.text())
+            supervision_count = int(self.directpower_count_lineedit.text())
+            off_time = int(self.directpower_offtime_lineedit.text())
             interval_times = self.directpower_interval_lineedit.text().split(
                 '-')
-            interval, times = list(map(int, interval_times))
-            worker.snap_interval = interval
-            worker.snap_count = times
             worker.power_key = bytes.fromhex(
                 self.directpower_keyvalue_lineedit.text())
         else:
 
-            worker.supervision_count = int(
-                self.crosspower_count_lineedit.text())
-            worker.off_time = int(self.crosspower_offtime_lineedit.text())
+            supervision_count = int(self.crosspower_count_lineedit.text())
+            off_time = int(self.crosspower_offtime_lineedit.text())
             interval_times = self.crosspower_interval_lineedit.text().split('-')
-            interval, times = list(map(int, interval_times))
-            worker.snap_interval = interval
-            worker.snap_count = times
             worker.power_on_key = bytes.fromhex(
                 self.crosspower_on_keyvalue_lineedit.text())
             worker.power_off_key = bytes.fromhex(
                 self.crosspower_off_keyvalue_lineedit.text())
+        worker.supervision_count = supervision_count
+        worker.off_time = off_time
+        interval, times = list(map(int, interval_times))
+        worker.snap_interval = interval
+        worker.snap_count = times
         worker.cameras = self.cameras
         worker.serial_port = self.serial_port
+        worker.image_diff_rate = self.image_diff_spinbox.value() * 0.01
         worker.camera_reports = self.camera_reports
         worker.summary_report = self.summary_report
 

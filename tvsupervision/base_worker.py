@@ -30,6 +30,7 @@ class BaseWorker(QtCore.QObject):
         self.off_time = 15
         self.snap_count = 3
         self.snap_interval = 15
+        self.image_diff_rate = 0.01
         self.camera_reports = None
         self.summary_report = None
 
@@ -54,7 +55,8 @@ class BaseWorker(QtCore.QObject):
         standard_image = image_proc.qimage2cv(self.current_cam.standard_img())
         current_image = image_proc.qimage2cv(self.current_cam.current_frame())
         diff_result, diff_percent = image_proc.diff(standard_image,
-                                                    current_image)
+                                                    current_image,
+                                                    self.image_diff_rate)
         self.diff_finished.emit(self.current_cam.name(),
                                      str(self.curr_supervision_time),
                                      str(snap_time),
@@ -77,9 +79,10 @@ class BaseWorker(QtCore.QObject):
             camera_report.img_src = current_image_name
             camera_report.diff_state = diff_result
             camera_report.diff_percent = diff_percent
-            if not diff_result:
+            if diff_result:
+                camera_report.pass_times += 1
+
+            else:
                 camera_report.fail_times += 1
                 camera_report.update()
-            else:
-                camera_report.pass_times += 1
             camera_report.save_current_img()
