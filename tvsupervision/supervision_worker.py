@@ -22,6 +22,8 @@ class CrossWorker(base_worker.BaseWorker):
     @QtCore.pyqtSlot()
     def start_supervision(self):
         while self.curr_supervision_time < self.supervision_count:
+            if not self.supervision_control:
+                break
             self.curr_supervision_time += 1
             log.debug('Power off and sleep %ss.' % self.off_time)
             self.serial_port.write(self.power_off_key)
@@ -47,6 +49,8 @@ class DirectWorker(base_worker.BaseWorker):
     @QtCore.pyqtSlot()
     def start_supervision(self):
         while self.curr_supervision_time < self.supervision_count:
+            if not self.supervision_control:
+                break
             self.curr_supervision_time += 1
             log.debug('Power off and sleep %ss.' % self.off_time)
             self.serial_port.write(self.power_key)

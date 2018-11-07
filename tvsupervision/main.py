@@ -8,7 +8,6 @@ date: 2018/5/14
 
 # imports
 import os
-import shutil
 import sys
 import time
 import webbrowser
@@ -340,12 +339,13 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
             log.debug('Start supervision, first check param configurations.')
             self.start()
         else:
-            self.pause()
+            self.stop()
 
     def start(self):
         if not self.check_and_prepare():
             return
-        self.start_supervision_pushbutton.setText('暂停监控')
+        self.start_supervision_pushbutton.setText('结束监控')
+        self.look_result_pushbutton.setEnabled(False)
         # if self.powertype_combobox.currentText() == '电源箱交流':
         #     pass
         if self.powertype_combobox.currentText() == '红外直流':
@@ -363,11 +363,11 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         self.supervision_thread.finished.connect(self.worker.deleteLater)
         self.supervision_thread.start()
 
-    def pause(self):
+    def stop(self):
         # Update log file to result dir.
-        shutil.move(conf.LOG_FILE, self.base_dir)
-        log.debug('Pause supervision.')
-        self.start_supervision_pushbutton.setText('开始监控')
+        # shutil.move(conf.LOG_FILE, self.base_dir)
+        log.debug('Stop supervision.')
+        self.worker.supervision_control = False
 
     def init_worker(self, worker):
         if self.powertype_combobox.currentText() == '红外直流':
@@ -396,11 +396,13 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         worker.image_diff_rate = self.image_diff_spinbox.value() * 0.01
         worker.camera_reports = self.camera_reports
         worker.summary_report = self.summary_report
+        worker.supervision_control = True
 
     def resume(self):
         log.debug('Supervision is finished.')
         # self.summary_report.update_summary_report()
         self.start_supervision_pushbutton.setText('开始监控')
+        self.look_result_pushbutton.setEnabled(True)
 
     def look_result(self):
         if self.summary_report is None:

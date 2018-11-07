@@ -33,6 +33,7 @@ class BaseWorker(QtCore.QObject):
         self.image_diff_rate = 0.01
         self.camera_reports = None
         self.summary_report = None
+        self.supervision_control = False
 
     def snap_and_diff(self, cam, snap_time):
         event_loop = QtCore.QEventLoop()
