@@ -95,14 +95,14 @@ class CameraReport(object):
         self.camera = camera
         self.camera_name = '_'.join([self.camera.tag(), self.camera.name()])
         self.result_dir = os.path.join(basedir, self.camera_name)
-        self.report_name = os.path.join(self.result_dir, conf.DETAILS_REPORT)
+        self.report_name = os.path.join(self.result_dir, conf.CAMERA_REPORT)
         self.pass_times = 0
         self.fail_times = 0
         self.total_times = 0
         self.curr_supervision_time = 0
         self.snap_time = 0
         self.current_time = 0
-        self.fileSrc = os.path.join('.', self.camera_name, conf.DETAILS_REPORT)
+        self.fileSrc = os.path.join('.', self.camera_name, conf.CAMERA_REPORT)
         self.img_src = None
         self.diff_state = False
         self.diff_percent = 0

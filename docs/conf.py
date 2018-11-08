@@ -14,5 +14,5 @@ BASE_OPEN_DIR = QtCore.QStandardPaths.writableLocation(
 STANDARD_IMG = 'standard.jpg'
 IMG_POSTFIX = 'jpg'
 SUMMARY_REPORT = 'summary_report.xml'
-DETAILS_REPORT = 'details_report.xml'
+CAMERA_REPORT = 'camera_report.xml'
 LOG_FILE = 'log.txt'
