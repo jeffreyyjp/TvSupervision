@@ -1,0 +1,30 @@
+html, body {
+    text-align: center;
+
+}
+
+div {
+    margin: 35px auto;
+    padding: 15px;
+}
+
+h1 {
+
+}
+
+table {
+    margin: 0 auto;
+}
+
+table, th, td {
+    border: 1px solid black;
+}
+
+table, th {
+    background-color: lightgreen;
+}
+
+table, td {
+    background-color: white;
+    text-align: center;
+}

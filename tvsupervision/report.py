@@ -49,7 +49,7 @@ class SummaryReport(object):
         pi_node = report_doc.createProcessingInstruction(
             target='xml-stylesheet',
             data='type="text/xsl" '
-                 'href="../utils/detail.xsl"')
+                 'href="./summary_report.xsl"')
         report_doc.appendChild(pi_node)
         root_element = report_doc.createElement('body')
         report_doc.appendChild(root_element)
@@ -104,7 +104,7 @@ class CameraReport(object):
         self.current_time = 0
         self.fileSrc = os.path.join('.', self.camera_name, conf.CAMERA_REPORT)
         self.img_src = None
-        self.diff_state = False
+        self.diff_result = False
         self.diff_percent = 0
         self.camera_attr = None
         self.summary_attr = {'cameraName': self.camera_name,
@@ -128,11 +128,11 @@ class CameraReport(object):
         pi_node = report_doc.createProcessingInstruction(
             target='xml-stylesheet',
             data='type="text/xsl" '
-                 'href="../utils/detail.xsl"')
+                 'href="../camera_report.xsl"')
         report_doc.appendChild(pi_node)
         root_element = report_doc.createElement('body')
         report_doc.appendChild(root_element)
-        results_element = report_doc.createElement('Results')
+        results_element = report_doc.createElement('Details')
         root_element.appendChild(results_element)
         results_element.setAttribute('cameraName', self.camera_name)
         with open(self.report_name, 'w') as f:
@@ -152,15 +152,15 @@ class CameraReport(object):
                             'snapTime': self.snap_time,
                             'currentTime': self.current_time,
                             'diffPercent': self.diff_percent,
-                            'state': self.diff_state,
+                            'result': self.diff_result,
                             'imgSrc': self.img_src}
 
 
     def update(self):
         self.update_camera_details()
         report_doc = dom.parse(self.report_name)
-        results_element = report_doc.getElementsByTagName('Results')[0]
-        result_element = report_doc.createElement('Result')
+        results_element = report_doc.getElementsByTagName('Details')[0]
+        result_element = report_doc.createElement('Detail')
         results_element.appendChild(result_element)
         for attr in self.camera_attr:
             result_element.setAttribute(attr, str(self.camera_attr[attr]))

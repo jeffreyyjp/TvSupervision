@@ -8,6 +8,7 @@ date: 2018/5/14
 
 # imports
 import os
+import shutil
 import sys
 import time
 import webbrowser
@@ -400,7 +401,6 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
 
     def resume(self):
         log.debug('Supervision is finished.')
-        # self.summary_report.update_summary_report()
         self.start_supervision_pushbutton.setText('开始监控')
         self.look_result_pushbutton.setEnabled(True)
 
@@ -475,6 +475,10 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
                                      current_time)
         if not os.path.exists(self.base_dir):
             os.mkdir(self.base_dir)
+            shutil.copy(conf.SUMMARY_REPORT_XSL, self.base_dir)
+            shutil.copy(conf.CAMERA_REPORT_XSL, self.base_dir)
+            shutil.copy(conf.STYLE_CSS, self.base_dir)
+
         log.debug('Current base dir is %s' % self.base_dir)
         for cam in self.cameras:
             if not cam.is_open():
