@@ -8,7 +8,7 @@
             </head>
             <body>
                 <div>
-                    <h1>开关机图像对比测试报告</h1>
+                    <h1>开关机图像对比总报告</h1>
                     <table>
                         <caption>
                             时间：
@@ -40,8 +40,7 @@
                                         <xsl:value-of select="@fileSrc"/>
                                     </xsl:variable>
                                     <a href="{$camera_report}" target="_blank">
-                                        <xsl:value-of
-                                                select="@fileSrc"/>
+                                        <xsl:value-of select="@fileSrc"/>
                                     </a>
                                 </td>
                             </tr>

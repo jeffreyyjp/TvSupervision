@@ -4,11 +4,11 @@
         <html>
             <head>
                 <title>Camera Test Report</title>
-                <link rel="stylesheet" type="text/css" href="style.css"/>
+                <link rel="stylesheet" type="text/css" href="../style.css"/>
             </head>
             <body>
                 <div>
-                    <h1>开关机图像对比测试报告</h1>
+                    <h1>开关机图像对比详细报告</h1>
                     <table>
                         <caption>
                             摄像头名称：
@@ -45,21 +45,17 @@
                                     <xsl:variable name="curr_img_address">
                                         <xsl:value-of select="@imgSrc"/>
                                     </xsl:variable>
-                                    <a href="{$curr_img_address}"
-                                       target="_blank">
-                                        <xsl:value-of
-                                                select="@fileSrc"/>
-                                        <img src="{$curr_img_address}" alt="实时图"
+                                    <a href="{$curr_img_address}">
+                                        <img src="{$curr_img_address}"
+                                             alt="实时图"
                                              width="56"
                                              height="42"/>
                                     </a>
                                 </td>
                                 <td>
-                                    <xsl:variable name="standard_img_address">
-                                        <xsl:value-of select="standard.jpg"/>
-                                    </xsl:variable>
-                                    <a href="{$standard_img_address}">
-                                        <img src="standard.jpg" alt="标准图"
+                                    <a href="standard.jpg">
+                                        <img src="standard.jpg"
+                                             alt="标准图"
                                              width="56"
                                              height="42"/>
                                     </a>

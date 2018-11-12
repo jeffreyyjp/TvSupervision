@@ -106,8 +106,6 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
                 log.debug('Close %s.' % cam.name())
                 cam.get_viewfinder().close()
                 cam.close()
-        # if self.base_dir is not None:
-        #     shutil.move(conf.LOG_FILE, self.base_dir)
         log.debug('Close App.')
         event.accept()
 
@@ -130,25 +128,6 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
             else:
                 return False
         return MainWindow.eventFilter(self, obj, event)
-
-    # def resizeEvent(self, QResizeEvent):
-    #     """
-    #     Resize standard image when main window is changed and keep image
-    #     resize smoothly.
-    #     :param QResizeEvent:
-    #     :return:
-    #     """
-    #     # print('hello')
-    #     if self.standardimg_tabwidget.count() == 0:
-    #         return
-    #
-    #     curr_label = self.standardimg_tabwidget.currentWidget()
-    #     curr_pixmap = curr_label.pixmap()
-    #     scaled_size = curr_pixmap.size()
-    #     scaled_size.scale(curr_label.size(), QtCore.Qt.KeepAspectRatio)
-    #     # if not curr_pixmap or scaled_size != curr_pixmap.size():
-    #     #     self.update_label_image(curr_label, curr_pixmap)
-    #     self.update_label_image(curr_label, curr_pixmap)
 
     @QtCore.pyqtSlot()
     def refresh_camera_table(self):
@@ -346,6 +325,7 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         if not self.check_and_prepare():
             return
         self.start_supervision_pushbutton.setText('结束监控')
+        self.open_serial_pushbutton.setEnabled(False)
         self.look_result_pushbutton.setEnabled(False)
         # if self.powertype_combobox.currentText() == '电源箱交流':
         #     pass
@@ -365,8 +345,6 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         self.supervision_thread.start()
 
     def stop(self):
-        # Update log file to result dir.
-        # shutil.move(conf.LOG_FILE, self.base_dir)
         log.debug('Stop supervision.')
         self.worker.supervision_control = False
 
@@ -402,6 +380,7 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
     def resume(self):
         log.debug('Supervision is finished.')
         self.start_supervision_pushbutton.setText('开始监控')
+        self.open_serial_pushbutton.setEnabled(True)
         self.look_result_pushbutton.setEnabled(True)
 
     def look_result(self):
