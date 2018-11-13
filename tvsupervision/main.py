@@ -382,6 +382,8 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         self.start_supervision_pushbutton.setText('开始监控')
         self.open_serial_pushbutton.setEnabled(True)
         self.look_result_pushbutton.setEnabled(True)
+        # Copy log.txt to result dir
+        shutil.copy(conf.LOG_FILE, self.base_dir)
 
     def look_result(self):
         if self.summary_report is None:
