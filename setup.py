@@ -1,4 +1,4 @@
-#!/usr/bin/python  
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 """
@@ -13,11 +13,11 @@ with open('README.md', 'r') as fh:
 
 
 setuptools.setup(
-    name='tvsupervision',
+    name='TvSupervision',
     version = '0.0.1',
     author = 'Jeffrey Yang',
     author_email = '',
-    description = 'Python tools for Tv power on and off supervisory',
+    description='Python tools for Tv power on and off supervision',
     long_description = long_description,
     long_description_content_type = 'text/markdown',
     url='https://github.com/messi-yang/TvSupervision',
