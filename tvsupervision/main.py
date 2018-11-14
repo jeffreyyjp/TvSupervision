@@ -88,7 +88,7 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         self.resultdir_linedit.setText(conf.BASE_OPEN_DIR)
         if camera_handler.check_camera_availability():
             self.refresh_camera_table()
-        self.refresh_serial()  # TODO
+        self.refresh_serial()
 
     def closeEvent(self, event):
         if self.supervision_thread.isRunning():

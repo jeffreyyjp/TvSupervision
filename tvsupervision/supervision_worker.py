@@ -26,6 +26,7 @@ class BaseWorker(QtCore.QObject):
         self.current_cam = None
         self.supervision_count = None
         self.curr_supervision_count = 0
+        self.current_snap_time = 0
         self.snap_count = 3
         self.snap_interval = 15
         self.image_diff_rate = 0.01
@@ -33,16 +34,18 @@ class BaseWorker(QtCore.QObject):
         self.summary_report = None
         self.supervision_control = False
 
-    def snap_and_diff(self, cam, snap_time):
+    def snap_and_diff(self):
         event_loop = QtCore.QEventLoop()
-        self.current_cam = cam
-        if cam.get_image_capture().isReadyForCapture():
-            cam.get_image_capture().imageCaptured.connect(self.capture_curr)
-            cam.get_image_capture().imageCaptured.connect(event_loop.quit)
+
+        if self.current_cam.get_image_capture().isReadyForCapture():
+            self.current_cam.get_image_capture().imageCaptured.connect(
+                self.capture_curr)
+            self.current_cam.get_image_capture().imageCaptured.connect(
+                event_loop.quit)
             log.debug('Snap current image.')
-            cam.capture()
+            self.current_cam.capture()
             event_loop.exec()
-        self.diff(snap_time)
+        self.diff()
 
     @QtCore.pyqtSlot(int, QtGui.QImage)
     def capture_curr(self, id, image):
@@ -50,7 +53,7 @@ class BaseWorker(QtCore.QObject):
         self.current_cam.get_image_capture().imageCaptured.disconnect(
             self.capture_curr)
 
-    def diff(self, snap_time):
+    def diff(self):
         standard_image = image_proc.qimage2cv(self.current_cam.standard_img())
         current_image = image_proc.qimage2cv(self.current_cam.current_frame())
         diff_result, diff_percent = image_proc.diff(standard_image,
@@ -59,14 +62,15 @@ class BaseWorker(QtCore.QObject):
         diff_percent = str(round(diff_percent, 2)) + '%'
         self.diff_finished.emit(self.current_cam.name(),
                                 str(self.curr_supervision_count),
-                                str(snap_time),
+                                str(self.current_snap_time),
                                 str(diff_result), str(diff_percent))
         log.debug("%s's %s_%s diff result is %s, diff percent is %s" % (
-            self.current_cam.name(), self.curr_supervision_count, snap_time,
+            self.current_cam.name(), self.curr_supervision_count,
+            self.current_snap_time,
             diff_result, diff_percent))
-        self.save_report(diff_result, diff_percent, snap_time)
+        self.save_report(diff_result, diff_percent)
 
-    def save_report(self, diff_result, diff_percent, snap_time):
+    def save_report(self, diff_result, diff_percent):
         for camera_report in self.camera_reports:
             if self.current_cam is not camera_report.camera:
                 continue
@@ -76,7 +80,7 @@ class BaseWorker(QtCore.QObject):
                                                self.curr_supervision_count,
                                                conf.IMG_POSTFIX)
             camera_report.curr_supervision_count = self.curr_supervision_count
-            camera_report.snap_time = snap_time
+            camera_report.snap_time = self.current_snap_time
             camera_report.img_src = current_image_name
             camera_report.diff_state = diff_result
             camera_report.diff_percent = diff_percent
@@ -114,7 +118,9 @@ class CrossWorker(BaseWorker):
                 for cam in self.cameras:
                     if not cam.is_open():
                         continue
-                    self.snap_and_diff(cam, i + 1)
+                    self.current_cam = cam
+                    self.current_snap_time = i + 1
+                    self.snap_and_diff()
         self.summary_report.update()
         self.supervision_finished.emit()
 
@@ -143,7 +149,9 @@ class DirectWorker(BaseWorker):
                 for cam in self.cameras:
                     if not cam.is_open():
                         continue
-                    self.snap_and_diff(cam, i + 1)
+                    self.current_cam = cam
+                    self.current_snap_time = i + 1
+                    self.snap_and_diff()
         self.summary_report.update()
         self.supervision_finished.emit()
 
@@ -153,7 +161,25 @@ class PowerboxWorker(BaseWorker):
     def __init__(self):
         super(PowerboxWorker, self).__init__()
         self.onoff_interval = 60
+        self.supervision_timer = QtCore.QTimer()
 
     @QtCore.pyqtSlot()
     def start_supervision(self):
-        pass
+        self.supervision_timer.timeout.connect(self.start_snap)
+        self.supervision_timer.start(self.onoff_interval * 1000)
+
+    @QtCore.pyqtSlot()
+    def start_snap(self):
+        self.curr_supervision_count += 1
+        for i in range(self.snap_count):
+            for cam in self.cameras:
+                if not cam.is_open():
+                    continue
+                self.current_cam = cam
+                self.current_snap_time = i + 1
+                QtCore.QTimer.singleShot(self, (i + 1) * self.snap_interval *
+                                         1000, self.snap_and_diff)
+        if self.curr_supervision_count > self.supervision_count or not \
+                self.supervision_control:
+            self.supervision_timer.stop()
+            self.supervision_finished.emit()
