@@ -72,6 +72,9 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
 
         Get camera, comport, and test result dir info.
         """
+        self.powerbox_count_lineedit.setText('500')
+        self.powerbox_onoff_interval_lineedit.setText('60')
+        self.powerbox_snap_interval_lineedit.setText('10-3')
         self.directpower_count_lineedit.setText('500')
         self.directpower_offtime_lineedit.setText('15')
         self.directpower_keyvalue_lineedit.setText('AAA7BF0DE3')
@@ -329,6 +332,9 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         self.look_result_pushbutton.setEnabled(False)
         # if self.powertype_combobox.currentText() == '电源箱交流':
         #     pass
+        if self.powertype_combobox.currentText() == '电源箱交流':
+            log.debug('Start powerbox supervision.')
+            self.worker = supervision_worker.PowerboxWorker()
         if self.powertype_combobox.currentText() == '红外直流':
             log.debug('Start direct supervision.')
             self.worker = supervision_worker.DirectWorker()
@@ -349,6 +355,16 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         self.worker.supervision_control = False
 
     def init_worker(self, worker):
+        if self.powertype_combobox.currentText() == '电源箱交流':
+            supervision_count = int(self.powerbox_count_lineedit.text())
+            worker.supervision_count = supervision_count
+            worker.onoff_interval = int(
+                self.powerbox_onoff_interval_lineedit.text())
+            interval_times = self.crosspower_interval_lineedit.text().split('-')
+            interval, times = list(map(int, interval_times))
+            worker.snap_interval = interval
+            worker.snap_count = times
+            return
         if self.powertype_combobox.currentText() == '红外直流':
             supervision_count = int(self.directpower_count_lineedit.text())
             off_time = int(self.directpower_offtime_lineedit.text())

@@ -23,11 +23,9 @@ class BaseWorker(QtCore.QObject):
     def __init__(self):
         super(BaseWorker, self).__init__()
         self.cameras = None
-        self.serial_port = None
         self.current_cam = None
         self.supervision_count = None
-        self.curr_supervision_time = 0
-        self.off_time = 15
+        self.curr_supervision_count = 0
         self.snap_count = 3
         self.snap_interval = 15
         self.image_diff_rate = 0.01
@@ -60,11 +58,11 @@ class BaseWorker(QtCore.QObject):
                                                     self.image_diff_rate)
         diff_percent = str(round(diff_percent, 2)) + '%'
         self.diff_finished.emit(self.current_cam.name(),
-                                str(self.curr_supervision_time),
+                                str(self.curr_supervision_count),
                                 str(snap_time),
                                 str(diff_result), str(diff_percent))
         log.debug("%s's %s_%s diff result is %s, diff percent is %s" % (
-            self.current_cam.name(), self.curr_supervision_time, snap_time,
+            self.current_cam.name(), self.curr_supervision_count, snap_time,
             diff_result, diff_percent))
         self.save_report(diff_result, diff_percent, snap_time)
 
@@ -74,9 +72,10 @@ class BaseWorker(QtCore.QObject):
                 continue
             current_time = time.strftime('%Y-%m-%d_%H-%M-%S', time.localtime())
             camera_report.current_time = current_time
-            current_image_name = '%s_%s.%s' % (current_time, snap_time,
+            current_image_name = '%s_%s.%s' % (current_time,
+                                               self.curr_supervision_count,
                                                conf.IMG_POSTFIX)
-            camera_report.curr_supervision_time = self.curr_supervision_time
+            camera_report.curr_supervision_count = self.curr_supervision_count
             camera_report.snap_time = snap_time
             camera_report.img_src = current_image_name
             camera_report.diff_state = diff_result
@@ -94,15 +93,17 @@ class CrossWorker(BaseWorker):
 
     def __init__(self):
         super(CrossWorker, self).__init__()
+        self.serial_port = None
+        self.off_time = 15
         self.power_on_key = None
         self.power_off_key = None
 
     @QtCore.pyqtSlot()
     def start_supervision(self):
-        while self.curr_supervision_time < self.supervision_count:
+        while self.curr_supervision_count < self.supervision_count:
             if not self.supervision_control:
                 break
-            self.curr_supervision_time += 1
+            self.curr_supervision_count += 1
             log.debug('Power off and sleep %ss.' % self.off_time)
             self.serial_port.write(self.power_off_key)
             self.thread().sleep(self.off_time)
@@ -122,14 +123,16 @@ class DirectWorker(BaseWorker):
 
     def __init__(self):
         super(DirectWorker, self).__init__()
+        self.serial_port = None
+        self.off_time = 15
         self.power_key = None
 
     @QtCore.pyqtSlot()
     def start_supervision(self):
-        while self.curr_supervision_time < self.supervision_count:
+        while self.curr_supervision_count < self.supervision_count:
             if not self.supervision_control:
                 break
-            self.curr_supervision_time += 1
+            self.curr_supervision_count += 1
             log.debug('Power off and sleep %ss.' % self.off_time)
             self.serial_port.write(self.power_key)
             self.thread().sleep(self.off_time)
@@ -143,3 +146,14 @@ class DirectWorker(BaseWorker):
                     self.snap_and_diff(cam, i + 1)
         self.summary_report.update()
         self.supervision_finished.emit()
+
+
+class PowerboxWorker(BaseWorker):
+
+    def __init__(self):
+        super(PowerboxWorker, self).__init__()
+        self.onoff_interval = 60
+
+    @QtCore.pyqtSlot()
+    def start_supervision(self):
+        pass
