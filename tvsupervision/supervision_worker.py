@@ -7,7 +7,6 @@ date: 2018/11/1
 """
 
 import time
-
 from PyQt5 import QtCore
 from PyQt5 import QtGui
 
@@ -161,7 +160,7 @@ class PowerboxWorker(BaseWorker):
     def __init__(self):
         super(PowerboxWorker, self).__init__()
         self.onoff_interval = 60
-        self.supervision_timer = QtCore.QTimer()
+        self.supervision_timer = QtCore.QTimer(self)
 
     @QtCore.pyqtSlot()
     def start_supervision(self):
@@ -177,8 +176,8 @@ class PowerboxWorker(BaseWorker):
                     continue
                 self.current_cam = cam
                 self.current_snap_time = i + 1
-                QtCore.QTimer.singleShot(self, (i + 1) * self.snap_interval *
-                                         1000, self.snap_and_diff)
+                interval = (i + 1) * self.snap_interval * 1000
+                self.supervision_timer.singleShot(interval, self.snap_and_diff)
         if self.curr_supervision_count > self.supervision_count or not \
                 self.supervision_control:
             self.supervision_timer.stop()

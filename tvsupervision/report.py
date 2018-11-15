@@ -99,7 +99,7 @@ class CameraReport(object):
         self.pass_times = 0
         self.fail_times = 0
         self.total_times = 0
-        self.curr_supervision_time = 0
+        self.curr_supervision_count = 0
         self.snap_time = 0
         self.current_time = 0
         self.fileSrc = os.path.join('.', self.camera_name, conf.CAMERA_REPORT)
@@ -148,7 +148,7 @@ class CameraReport(object):
                              'fileSrc': self.fileSrc}
 
     def update_camera_details(self):
-        self.camera_attr = {'currSupervisionTime': self.curr_supervision_time,
+        self.camera_attr = {'currSupervisionTime': self.curr_supervision_count,
                             'snapTime': self.snap_time,
                             'currentTime': self.current_time,
                             'diffPercent': self.diff_percent,

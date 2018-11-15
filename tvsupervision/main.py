@@ -10,10 +10,10 @@ date: 2018/5/14
 import os
 import shutil
 import sys
-import time
 import webbrowser
 
 import serial
+import time
 from PyQt5 import QtCore
 from PyQt5 import QtGui
 from PyQt5 import QtMultimediaWidgets
@@ -335,7 +335,7 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
         if self.powertype_combobox.currentText() == '电源箱交流':
             log.debug('Start powerbox supervision.')
             self.worker = supervision_worker.PowerboxWorker()
-        if self.powertype_combobox.currentText() == '红外直流':
+        elif self.powertype_combobox.currentText() == '红外直流':
             log.debug('Start direct supervision.')
             self.worker = supervision_worker.DirectWorker()
         else:
@@ -361,33 +361,31 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
             worker.onoff_interval = int(
                 self.powerbox_onoff_interval_lineedit.text())
             interval_times = self.crosspower_interval_lineedit.text().split('-')
-            interval, times = list(map(int, interval_times))
-            worker.snap_interval = interval
-            worker.snap_count = times
-            return
-        if self.powertype_combobox.currentText() == '红外直流':
+        elif self.powertype_combobox.currentText() == '红外直流':
             supervision_count = int(self.directpower_count_lineedit.text())
             off_time = int(self.directpower_offtime_lineedit.text())
+            worker.off_time = off_time
             interval_times = self.directpower_interval_lineedit.text().split(
                 '-')
             worker.power_key = bytes.fromhex(
                 self.directpower_keyvalue_lineedit.text())
+            worker.serial_port = self.serial_port
         else:
 
             supervision_count = int(self.crosspower_count_lineedit.text())
             off_time = int(self.crosspower_offtime_lineedit.text())
+            worker.off_time = off_time
             interval_times = self.crosspower_interval_lineedit.text().split('-')
             worker.power_on_key = bytes.fromhex(
                 self.crosspower_on_keyvalue_lineedit.text())
             worker.power_off_key = bytes.fromhex(
                 self.crosspower_off_keyvalue_lineedit.text())
+            worker.serial_port = self.serial_port
         worker.supervision_count = supervision_count
-        worker.off_time = off_time
         interval, times = list(map(int, interval_times))
         worker.snap_interval = interval
         worker.snap_count = times
         worker.cameras = self.cameras
-        worker.serial_port = self.serial_port
         worker.image_diff_rate = self.image_diff_spinbox.value() * 0.01
         worker.camera_reports = self.camera_reports
         worker.summary_report = self.summary_report
@@ -446,10 +444,11 @@ class MainWindow(QtWidgets.QWidget, mainwindow.Ui_Form):
                 return False
 
         # Check if com_port is open
-        if not self.serial_port.is_open:
-            log.warning("Haven't opened cam port.")
-            critical(self, '提示', '未打开串口')
-            return False
+        if self.powertype_combobox.currentText() != '电源箱交流':
+            if not self.serial_port.is_open:
+                log.warning("Haven't opened cam port.")
+                critical(self, '提示', '未打开串口')
+                return False
 
         # Check result dir is valid
         if not os.path.isdir(self.resultdir_linedit.text()):
