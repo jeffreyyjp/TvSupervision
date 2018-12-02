@@ -9,6 +9,8 @@ from PyQt5 import QtCore
 from PyQt5 import QtGui
 from PyQt5 import QtWidgets
 
+from docs import conf
+
 
 class Ui_Form(object):
     def setupUi(self, form):
@@ -26,7 +28,7 @@ class Ui_Form(object):
         form.setFont(font)
 
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap('../docs/images/tv.jpg'),
+        icon.addPixmap(QtGui.QPixmap(conf.APP_ICON),
                        QtGui.QIcon.Normal, QtGui.QIcon.On)
         form.setWindowIcon(icon)
 

@@ -14,6 +14,7 @@ from PyQt5 import QtCore
 base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_OPEN_DIR = QtCore.QStandardPaths.writableLocation(
     QtCore.QStandardPaths.DocumentsLocation)
+APP_ICON = os.path.join(base_dir, 'docs/images/tv.jpg')
 STANDARD_IMG = 'standard.jpg'
 IMG_POSTFIX = 'jpg'
 SUMMARY_REPORT = 'summary_report.xml'
