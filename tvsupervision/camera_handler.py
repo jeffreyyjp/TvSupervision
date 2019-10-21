@@ -19,9 +19,7 @@ def check_camera_availability():
     :return: True for available cameras or False for None
     """
     cameras_info = QtMultimedia.QCameraInfo.availableCameras()
-    if len(cameras_info) > 0:
-        return True
-    return False
+    return True if cameras_info else False
 
 
 def get_cameras():
