@@ -21,8 +21,8 @@ for [xml.dom.minidom](https://docs.python.org/3.6/library/xml.dom.minidom.html).
 
 **Third Lib**
 ***
-* PyQt5 - Handle all software UI. Look for [QT](http://doc.qt.io/).
-* cv2 - Image process, comparing standard img and any time's image. Look for 
+* PyQt5 - Handle all UI. Look for [QT](http://doc.qt.io/).
+* cv2 - Image process, comparing standard img with any time's image. Look for 
 [Python OpenCv](https://docs.opencv.org/3.4.3/d6/d00/tutorial_py_root.html).
 * numpy - Essential lib for opencv-python. Look for [numpy](http://www.numpy.org/).
 * pyserial - Provide comport control for infrared plate or power relay. Look 
