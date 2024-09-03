@@ -2,5 +2,5 @@ PyQt5==5.11.2
 PyQt5-sip==4.19.12
 pyserial==3.4
 numpy==1.22.0
-opencv-python==4.2.0.32
+opencv-python==4.8.1.78
 
